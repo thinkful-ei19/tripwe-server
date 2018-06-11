@@ -2,7 +2,7 @@
 
 const { Strategy: LocalStrategy } = require('passport-local');
 //const User = require('../models/user');
-// does pg habe models too??
+// does pg have models too??
 const localStrategy = new LocalStrategy((username, password, done) => {
     let user;
     User.findOne({ username })
