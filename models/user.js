@@ -2,6 +2,25 @@
 const bcrypt = require('bcryptjs');
 const knex = require('knex');
 //knex?
+exports.recreateSchema = function(knex, callback){
+    callback = callback || function (){};
+
+    knex.schema.dropTableIfExists('User')
+        .then(function() {
+            return knex.schema.createTable('User', function(tbl) {
+                tbl.increments('id').primary();
+                tbl.string('fullname');
+                tbl.string('username').unique();
+                tbl.string('email').unique();
+                tbl.string('password')
+            })
+        })
+}
+
+
+
+
+
 
 const userSchema = new knex.Schema({
     fullname: { type: String, default: '' },

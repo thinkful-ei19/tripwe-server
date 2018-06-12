@@ -1,6 +1,8 @@
 'use strict';
 const express = require('express');
-
+const bcrypt = require('bcryptjs');
+const {dbGet} = require('../db-knex');
+const { getUserId } = require('../utils/getUserId');
 //const User = require('../models/user');
 
 const router = express.Router();
@@ -8,6 +10,9 @@ const router = express.Router();
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/users', (req, res, next) => {
+  const knex = dbGet();
+  const { fullname, email, username, password} = req.body;
+  let userId;
 
   const requiredFields = ['username', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
@@ -77,30 +82,95 @@ router.post('/users', (req, res, next) => {
     return next(err);
   }
 
-  // Username and password were validated as pre-trimmed
-  let { username, password, fullname = '' } = req.body;
-  fullname = fullname.trim();
-
-  // Remove explicit hashPassword if using pre-save middleware
-  return User.hashPassword(password)
+ return bcrypt.hash(password, 10)
     .then(digest => {
       const newUser = {
-        username,
-        password: digest,
-        fullname
+        fullname: fullname,
+        email: email,
+        username: username,
+        password: digest
       };
-      return User.create(newUser);
+      return knex.insert(newUser)
+        .into('users')
+        .returning('id')
+        .then(([id]) => {
+          userId = id;
+        });
     })
-    .then(result => {
-      return res.status(201).location(`/api/users/${result.id}`).json(result);
+    .then(() => {
+      return knex.select('users.fullname', 'users.username')
+        .from('users')
+        .where('users.id', userId)
+        .first();
     })
-    .catch(err => {
-      if (err.code === 11000) {
-        err = new Error('The username already exists');
+    .then (user => {
+      if (user) {
+        res.location(`${req.originalUrl}/${userId}`).status(201).json(user);
+      } else {
+        next();
+      }
+    })
+    .catch (err => {
+      // console.log(err);
+      if (err.code === '23505') {
+        err = new Error('Sorry, this username already exists');
         err.status = 400;
       }
       next(err);
     });
 });
+router.get('/users/trips', (req, res, next) => {
+  const knex = dbGet();
+  const userId = getUserId(req);
+
+  knex
+    .select('users.trips')
+    //selecting from the users trips...
+    .from('users')
+    .where('users.id', userId)
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+
+// router.put('/users/trips', (req, res, next) => {
+//   const knex = dbGet();
+
+//   const { trips } = req.body;
+//   const userId = getUserId(req);
+//   const usersTrips = {
+//     trips: trips
+//   };
+
+//   knex('users.id').from('users')
+//     .where('users.id', userId)
+//     .then(result => {
+//       if (result && result.length > 0) {
+//         knex('users')
+//           .update(userIncome)
+//           .where('id', userId)
+//           .then(() => {
+//             return knex.select('users.income')
+//               .from('users')
+//               .where('users.id', userId)
+//               .first()
+//               .then(user => {
+//                 if (user) {
+//                   res.json(user);
+//                 }
+//               });
+//           });
+//       } else {
+//         next();
+//       }
+//     })
+//     .catch(err => {
+//       next(err);
+//     });
+
+// });
 
 module.exports = router;

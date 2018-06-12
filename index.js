@@ -12,7 +12,7 @@ const { PORT, CLIENT_ORIGIN } = require('./config');
 const {dbConnect} = require('./db-knex');
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
-
+const tripsRouter = require('./routes/trips');
 const app = express();
 
 passport.use(localStrategy);
@@ -39,7 +39,7 @@ app.get('/api',(req, res)=> {
 });
 // Endpoints below this require authentication
 app.use(passport.authenticate('jwt', { session: false, failWithError: true }));
-
+app.use('/api', tripsRouter);
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {

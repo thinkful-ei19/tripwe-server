@@ -1,11 +1,23 @@
 'use strict';
-
+const express = require('express');
+const passport = require('passport');
+const bcrypt = require('bcryptjs');
+const bodyParser = require('body-parser');
+const {dbGet} = require('../db-knex');
 const { Strategy: LocalStrategy } = require('passport-local');
 //const User = require('../models/user');
 // does pg have models too??
+const app = express();
+app.use(express.static('public'));
+app.use(bodyParser.json());
+
 const localStrategy = new LocalStrategy((username, password, done) => {
+    const knex = dbGet();
     let user;
-    User.findOne({ username })
+    knex.select()
+        .from('users')
+        .where('users.username', username)
+        .first()
         .then(results => {
             user = results;
         if (!user) {
@@ -16,15 +28,16 @@ const localStrategy = new LocalStrategy((username, password, done) => {
                 location: 'username'
             });
         }
-        return user.validatePassword(password);
-      })
+        return bcrypt.compare(password, user.password);
+    })
         .then(isValid => {
         if (!isValid) {
-            return Promise.reject({
-                reason: 'LoginError',
-                message: 'Incorrect password',
-                location: 'password'
-            });
+            throw new Error('The password is incorrect, please try again.');
+            // return Promise.reject({
+            //     reason: 'LoginError',
+            //     message: 'Incorrect password',
+            //     location: 'password'
+            // });
         }
         return done(null, user);
         })
