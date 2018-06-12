@@ -32,9 +32,13 @@ app.use(
     origin: CLIENT_ORIGIN
   })
 );
+app.use('/api', authRouter);
+app.use('/api', usersRouter);
 app.get('/api',(req, res)=> {
   console.log('Hello! Testing, Testing 123')
 });
+// Endpoints below this require authentication
+app.use(passport.authenticate('jwt', { session: false, failWithError: true }));
 
 function runServer(port = PORT) {
   const server = app
