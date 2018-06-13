@@ -20,7 +20,7 @@ passport.use(jwtStrategy);
 //utilize body parser
 app.use(
   bodyParser.json()
-)
+);
 app.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
     skip: (req, res) => process.env.NODE_ENV === 'test'
@@ -35,7 +35,7 @@ app.use(
 app.use('/api', authRouter);
 app.use('/api', usersRouter);
 app.get('/api',(req, res)=> {
-  console.log('Hello! Testing, Testing 123')
+  console.log('Hello! Testing, Testing 123');
 });
 // Endpoints below this require authentication
 app.use(passport.authenticate('jwt', { session: false, failWithError: true }));
