@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const {dbGet} = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
-
 router.get('/trips', (req, res, next)=> {
   const knex = dbGet();
   const userId = getUserId(req);
@@ -22,4 +21,52 @@ router.get('/trips', (req, res, next)=> {
       next(err);
     });
 });
+router.get('/dashboard', (req, res, next) => {
+  const knex = dbGet();
+  const userId = getUserId(req);
+  knex.select(
+    't.id',
+    't.user_id',
+    't.name',
+    't.destination',
+    't.description',
+    't.arrival',
+    't.departure'
+  )
+  .from('trips as t')
+  .where({ user_id: 1 })
+  .then(result => {
+    console.log("dashboard result: ", result);
+    res.json(result)
+  })
+  .catch(err => {
+      console.error("[trips] Error caught!", inspect(e), inspect(e.stack))
+      next(err);
+  });
+});
+// router.get('/dashboard', (req, res, next) => {
+//   const knex = dbGet();
+
+//   const userId = getUserId(req);
+//   const query =  knex.select(
+//     't.id',
+//     't.user_id',
+//     't.name',
+//     't.destination',
+//     't.description',
+//     't.arrival',
+//     't.departure'
+//   )
+//   .from('trips as t')
+//   .where({ user_id: userId })
+//   console.log('SQL knex query:', query.toString())
+//   .then(result => {
+//     console.log("dashboard result: ", result);
+//     res.json(result)
+//   })
+//   .catch(err => {
+//       console.error("[trips] Error caught!", inspect(e), inspect(e.stack))
+//       next(err);
+//   });
+// });
 module.exports = router;
