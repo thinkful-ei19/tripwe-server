@@ -14,6 +14,7 @@ const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const tripsRouter = require('./routes/trips');
 const dashRouter = require('./routes/dashboard');
+const plansRouter = require('./routes/plans');
 const app = express();
 
 passport.use(localStrategy);
@@ -42,6 +43,7 @@ app.get('/api',(req, res)=> {
 app.use(passport.authenticate('jwt', { session: false, failWithError: true }));
 app.use('/api', dashRouter);
 app.use('/api', tripsRouter);
+app.use('/api', plansRouter);
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {
