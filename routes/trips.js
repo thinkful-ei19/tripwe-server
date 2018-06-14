@@ -31,8 +31,9 @@ const knex = dbGet();
   )
   .from('trips as t')
   .where({ id })
+  .first()
   .then(res => {
-    // console.log('getTripsById res:', res)
+     console.log('getTripsById res:', res)
     return res;
   })}
 
@@ -101,7 +102,8 @@ const getAccommodationsByTripId = tripId => {
     'a.name',
     'a.refnum',
     'a.checkin',
-    'a.checkout'
+    'a.checkout',
+    'a.phone_num'
   )
   .from('accommodations as a')
   .where({ trip_id: tripId })
@@ -143,6 +145,7 @@ const getBudgetByTripId = tripId => {
   )
   .from('budgets as b')
   .where({ trip_id: tripId })
+  .first()
   .then(res => {
     console.log('getBudgetByTripId res: ', res)
     return res;
