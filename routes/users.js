@@ -135,42 +135,4 @@ router.get('/users/trips', (req, res, next) => {
       next(err);
     });
 });
-
-// router.put('/users/trips', (req, res, next) => {
-//   const knex = dbGet();
-
-//   const { trips } = req.body;
-//   const userId = getUserId(req);
-//   const usersTrips = {
-//     trips: trips
-//   };
-
-//   knex('users.id').from('users')
-//     .where('users.id', userId)
-//     .then(result => {
-//       if (result && result.length > 0) {
-//         knex('users')
-//           .update(userIncome)
-//           .where('id', userId)
-//           .then(() => {
-//             return knex.select('users.income')
-//               .from('users')
-//               .where('users.id', userId)
-//               .first()
-//               .then(user => {
-//                 if (user) {
-//                   res.json(user);
-//                 }
-//               });
-//           });
-//       } else {
-//         next();
-//       }
-//     })
-//     .catch(err => {
-//       next(err);
-//     });
-
-// });
-
 module.exports = router;
