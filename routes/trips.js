@@ -132,5 +132,49 @@ const getPlansByTripId = tripId => {
     // console.log('getPlansByTripId res: ', res)
     return res;
   })}
+/*========POST TRIP========== */
+
+const insertNewTrip = newTrip => {
+  const knex = dbGet();
+  return knex.insert(newTrip)
+    .into('trips')
+    .returning('id')
+    .then(([id]) => id);
+}
+const insertUserIntoTrip = (userId, newTripId) => {
+  const knex = dbGet();
+    return knex.insert({user_id : userId, trip_id: newTripId})
+      .into('users_trips')
+      .then(() => true) 
+      .catch(e => { 
+        console.error('insertFlight error: ', e) 
+        return false })
+}
+
+router.post('/trips', async (req,res,next) => {
+  const userId = getUserId(req);
+  const { name, destination, description, arrival, departure } = req.body;
+
+  const newTrip = {
+    user_id: userId,
+    name,
+    destination,
+    description,
+    arrival,
+    departure,
+  }
+  const newTripId = await insertNewTrip(newTrip);
+  const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
+  
+  
+  if (insertUsersSuccess) { 
+    res.status(201).json(); 
+  } else { 
+    res.status(500).json(); 
+  };
+})
+
+
+  
 
 module.exports = router;
