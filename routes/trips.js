@@ -13,8 +13,9 @@ router.get('/trips/:id', async (req, res, next) => {
     const group = await getUsersByTripId(id);
     const accommodations = await getAccommodationsByTripId(id);
     const plans = await getPlansByTripId(id);
+    const budget = await getBudgetByTripId(id)
 
-    res.json({ trip, group, accommodations, plans })
+    res.json({ trip, group, accommodations, plans, budget })
 })
 
 const getTripById = id => {
@@ -30,8 +31,9 @@ const knex = dbGet();
   )
   .from('trips as t')
   .where({ id })
+  .first()
   .then(res => {
-    // console.log('getTripsById res:', res)
+     console.log('getTripsById res:', res)
     return res;
   })}
 
@@ -100,7 +102,8 @@ const getAccommodationsByTripId = tripId => {
     'a.name',
     'a.refnum',
     'a.checkin',
-    'a.checkout'
+    'a.checkout',
+    'a.phone_num'
   )
   .from('accommodations as a')
   .where({ trip_id: tripId })
@@ -176,5 +179,20 @@ router.post('/trips', async (req,res,next) => {
 
 
   
+
+const getBudgetByTripId = tripId => {
+  const knex = dbGet()
+  return knex.select(
+    'b.id',
+    'b.totalbudget',
+    'b.currentspending'
+  )
+  .from('budgets as b')
+  .where({ trip_id: tripId })
+  .first()
+  .then(res => {
+    console.log('getBudgetByTripId res: ', res)
+    return res;
+  })}
 
 module.exports = router;

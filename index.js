@@ -12,9 +12,11 @@ const { PORT, CLIENT_ORIGIN } = require('./config');
 const {dbConnect} = require('./db-knex');
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
+const dashboardRouter = require('./routes/dashboard');
 const tripsRouter = require('./routes/trips');
-const dashRouter = require('./routes/dashboard');
 const plansRouter = require('./routes/plans');
+const flightsRouter = require('./routes/flights');
+const budgetRouter = require('./routes/budget');
 const app = express();
 
 passport.use(localStrategy);
@@ -41,9 +43,11 @@ app.get('/api',(req, res)=> {
 });
 // Endpoints below this require authentication
 app.use(passport.authenticate('jwt', { session: false, failWithError: true }));
-app.use('/api', dashRouter);
 app.use('/api', tripsRouter);
 app.use('/api', plansRouter);
+app.use('/api', flightsRouter);
+app.use('/api', budgetRouter);
+app.use('/api', dashboardRouter);
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {
