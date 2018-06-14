@@ -56,6 +56,7 @@ CREATE TABLE plans (
 );
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
+    trip_id int REFERENCES trips,
     totalBudget int,
     currentSpending int
 );
@@ -92,8 +93,8 @@ INSERT into flights ( trip_id, user_id, IncomingDepartureTime, IncomingArrivalTi
 INSERT into plans (trip_id, date, description) VALUES
 (1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
 
-INSERT into budgets (totalBudget, currentSpending) VALUES
-(5000, 2000);
+INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
+(1, 5000, 2000);
 
 INSERT into users ( fullname, email, username, password) VALUES
 ('bianca', 'b@gmail.com', 'bianca', 'password123');
@@ -110,8 +111,8 @@ INSERT into flights (trip_id, user_id, IncomingDepartureTime, IncomingArrivalTim
 INSERT into plans (trip_id, date, description) VALUES
 (1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
 
-INSERT into budgets (totalBudget, currentSpending) VALUES
-(5000, 2000);
+INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
+(1, 5000, 2000);
 
 INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
 (1, 1, 0, 1)

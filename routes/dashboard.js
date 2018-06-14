@@ -8,7 +8,7 @@ const inspect = data => util.inspect(data, { depth: null });
 
 router.get('/dashboard', (req, res, next) => {
   const knex = dbGet();
-  const userId = getUserId(req);
+  const userId = 1;
   knex.select(
     't.id',
     't.user_id',

@@ -13,8 +13,9 @@ router.get('/trips/:id', async (req, res, next) => {
     const group = await getUsersByTripId(id);
     const accommodations = await getAccommodationsByTripId(id);
     const plans = await getPlansByTripId(id);
+    const budget = await getBudgetByTripId(id)
 
-    res.json({ trip, group, accommodations, plans })
+    res.json({ trip, group, accommodations, plans, budget })
 })
 
 const getTripById = id => {
@@ -130,6 +131,20 @@ const getPlansByTripId = tripId => {
   .where({ trip_id: tripId })
   .then(res => {
     // console.log('getPlansByTripId res: ', res)
+    return res;
+  })}
+
+const getBudgetByTripId = tripId => {
+  const knex = dbGet()
+  return knex.select(
+    'b.id',
+    'b.totalbudget',
+    'b.currentspending'
+  )
+  .from('budgets as b')
+  .where({ trip_id: tripId })
+  .then(res => {
+    console.log('getBudgetByTripId res: ', res)
     return res;
   })}
 
