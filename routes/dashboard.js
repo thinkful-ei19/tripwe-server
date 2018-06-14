@@ -18,16 +18,16 @@ router.get('/dashboard', (req, res, next) => {
     't.arrival',
     't.departure'
   )
-  .from('trips as t')
-  .where({ user_id: userId })
-  .then(result => {
+    .from('trips as t')
+    .where({ user_id: userId })
+    .then(result => {
     // console.log("dashboard result: ", result);
-    res.json(result)
-  })
-  .catch(err => {
-      console.error("[trips] Error caught!", inspect(e), inspect(e.stack))
+      res.json(result);
+    })
+    .catch(err => {
+      console.error('[trips] Error caught!', inspect(e), inspect(e.stack));
       next(err);
-  });
-})
+    });
+});
 
 module.exports = router;
