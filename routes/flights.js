@@ -7,9 +7,9 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 
-const insertFlight = NewFlight => {
+const insertFlight = newFlight => {
   const knex = dbGet();
-  return knex.insert(NewFlight)
+  return knex.insert(newFlight)
     .into('flights')
     .returning('id')
     .then(([id]) => id)
@@ -66,7 +66,6 @@ router.post('/trips/:id/flights', async (req, res, next) => {
   }
 
   const flightId = await insertFlight(newFlight)
-
   const success = await insertFlightInTrips(id, userId, flightId)
 
   if (success) {
