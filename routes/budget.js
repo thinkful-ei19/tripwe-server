@@ -2,12 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const {dbGet} = require('../db-knex');
+const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 
 router.post('/trips/:id/budget', async (req, res, next) => {
-  const knex = dbGet();
   const { id } = req.params;
 
   const {

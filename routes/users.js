@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const {dbGet} = require('../db-knex');
+const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 //const User = require('../models/user');
 
@@ -10,7 +10,6 @@ const router = express.Router();
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/users', (req, res, next) => {
-  const knex = dbGet();
   const { fullname, email, username, password} = req.body;
   let userId;
 
@@ -120,7 +119,7 @@ router.post('/users', (req, res, next) => {
     });
 });
 router.get('/users/trips', (req, res, next) => {
-  const knex = dbGet();
+
   const userId = getUserId(req);
 
   knex

@@ -9,11 +9,11 @@ const localStrategy = require('./passport/local');
 const jwtStrategy = require('./passport/jwt');
 const { PORT, CLIENT_ORIGIN } = require('./config');
 //const { dbConnect } = require('./db-mongoose');
-const {dbConnect} = require('./db-knex');
+const { knex } = require('./db-knex');
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard');
-const tripsRouter = require('./routes/trips');
+const { tripsRouter } = require('./routes/trips');
 const plansRouter = require('./routes/plans');
 const flightsRouter = require('./routes/flights');
 const budgetRouter = require('./routes/budget');
@@ -60,7 +60,6 @@ function runServer(port = PORT) {
 }
 
 if (require.main === module) {
-  dbConnect();
   runServer();
 }
 
