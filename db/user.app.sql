@@ -4,6 +4,9 @@ DROP TABLE IF EXISTS accommodations;
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS budgets;
 DROP TABLE IF EXISTS plans;
+DROP TABLE IF EXISTS users_trips;
+DROP TABLE IF EXISTS users_flights;
+DROP TABLE IF EXISTS accommodations_users;
 
 CREATE TABLE users (
     id serial PRIMARY KEY,
@@ -25,26 +28,26 @@ CREATE TABLE trips (
 CREATE TABLE accommodations (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
-    user_id int REFERENCES users ON DELETE CASCADE,
     name text,
     refNum text,
     checkIn date,
-    checkOut date
+    checkOut date,
+    phone_num int
 );
 CREATE TABLE flights (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
     user_id int REFERENCES users ON DELETE CASCADE,
-    incomingDepartureTime TIMESTAMP,
-    incomingArrivalTime TIMESTAMP,
+    incomingDepartureTime DATE,
+    incomingArrivalTime DATE,
     incomingDepartureAirport text,
     incomingArrivalAirport text,
-    incomingFlightNum int,
-    outgoingDepartureTime TIMESTAMP,
-    outgoingArrivalTime TIMESTAMP,
+    incomingFlightNum text,
+    outgoingDepartureTime DATE,
+    outgoingArrivalTime DATE,
     outgoingDepartureAirport text,
     outgoingArrivalAirport text,
-    outgoingFlightNum int
+    outgoingFlightNum text
 );
 CREATE TABLE plans (
     id serial PRIMARY KEY,
@@ -54,14 +57,15 @@ CREATE TABLE plans (
 );
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
+    trip_id int REFERENCES trips,
     totalBudget int,
     currentSpending int
 );
 CREATE TABLE users_trips (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
     trip_id int REFERENCES trips (id) ON UPDATE CASCADE,
-    flight_id int REFERENCES flights (id) ON UPDATE CASCADE,
     status numeric NOT NULL DEFAULT 0,
+    flight_id int REFERENCES flights (id) ON UPDATE CASCADE,
     CONSTRAINT user_trip_pkey PRIMARY KEY (user_id, trip_id)
 );
 CREATE TABLE users_flights (
@@ -70,7 +74,7 @@ CREATE TABLE users_flights (
     CONSTRAINT users_flights_pkey PRIMARY KEY (user_id, flight_id)
 );
 CREATE TABLE accommodations_users (
-    user_id int REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    accommodation_id int REFERENCES accommodations (accommodations_id) ON UPDATE CASCADE,
-    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, accommodations_id)
+    user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    accommodation_id int REFERENCES accommodations (id) ON UPDATE CASCADE,
+    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, accommodation_id)
 );

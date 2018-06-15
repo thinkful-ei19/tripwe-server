@@ -2,13 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const {dbGet} = require('../db-knex');
+const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 
 /* =====POST TO PLANS====== */
 
 router.post('/trips/:id/plans', (req, res, next) => {
-    const knex = dbGet();
     const { id } = req.params;
     const userId = getUserId(req);
     const { date, description } = req.body;

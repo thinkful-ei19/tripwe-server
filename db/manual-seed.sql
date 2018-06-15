@@ -8,6 +8,24 @@ DROP TABLE IF EXISTS users_trips;
 DROP TABLE IF EXISTS users_flights;
 DROP TABLE IF EXISTS accommodations_users;
 
+CREATE TABLE airports (
+  id serial PRIMARY KEY,
+  AirportName text,
+  City text,
+  Country text,
+  AirportCode text,
+  Abv text,
+  Latitude double precision,
+  Longitude double precision,
+  Altitude int,
+  Timezone int,
+  DST text,
+  TimezoneDB text,
+  Type text,
+  Source text
+);
+
+
 CREATE TABLE users (
     id serial PRIMARY KEY,
     fullname text NOT NULL,
@@ -56,6 +74,7 @@ CREATE TABLE plans (
 );
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
+    trip_id int REFERENCES trips,
     totalBudget int,
     currentSpending int
 );
@@ -81,7 +100,7 @@ INSERT into users ( fullname, email, username, password) VALUES
 ('victoria', 'v@gmail.com', 'victoria', 'password');
 
 INSERT into trips (user_id, name, destination, description, arrival, departure) VALUES
-(1, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+(26, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
 
 INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut)VALUES
 (1, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
@@ -92,8 +111,8 @@ INSERT into flights ( trip_id, user_id, IncomingDepartureTime, IncomingArrivalTi
 INSERT into plans (trip_id, date, description) VALUES
 (1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
 
-INSERT into budgets (totalBudget, currentSpending) VALUES
-(5000, 2000);
+INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
+(1, 5000, 2000);
 
 INSERT into users ( fullname, email, username, password) VALUES
 ('bianca', 'b@gmail.com', 'bianca', 'password123');
@@ -101,8 +120,8 @@ INSERT into users ( fullname, email, username, password) VALUES
 INSERT into trips (user_id, name, destination, description, arrival, departure) VALUES
 (2, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
 
-INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut)VALUES
-(1, 'Hilton', '1234ABC', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut, phone_num)VALUES
+(1, 'Hilton', '1234ABC', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 07957298374);
 
 INSERT into flights (trip_id, user_id, IncomingDepartureTime, IncomingArrivalTime, IncomingDepartureAirport, IncomingArrivalAirport, IncomingFlightNum, OutgoingDepartureTime, OutgoingArrivalTime, OutgoingDepartureAirport, OutgoingArrivalAirport, OutgoingFlightNum) VALUES
 (1, 2, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
@@ -110,8 +129,8 @@ INSERT into flights (trip_id, user_id, IncomingDepartureTime, IncomingArrivalTim
 INSERT into plans (trip_id, date, description) VALUES
 (1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
 
-INSERT into budgets (totalBudget, currentSpending) VALUES
-(5000, 2000);
+INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
+(1, 5000, 2000);
 
 INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
 (1, 1, 0, 1)
