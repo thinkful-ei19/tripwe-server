@@ -193,6 +193,49 @@ router.post('/trips', async (req,res,next) => {
     res.status(500).json();
   };
 })
+/* ========PUT / ADDING MORE USERS TO THE GROUP IN THE TRIP ========= */
+//
+const insertNewUserIntoUsersTrips = (userId, id) => {
+
+  return knex.insert({user_id : userId, trip_id: id})
+    .into('users_trips')
+    .then(() => true)
+    .catch(e => {
+      console.error('insertUsersTrips error: ', e)
+      return false })
+}
+const insertNewUserIntoTrips = (userId, id) => {
+
+  return knex.insert({user_id:  userId})
+    .into('trips')
+    .then(()=> true)
+    .catch(e => {
+      console.error('insertUser into Trips: ', e)
+    })
+}
+router.put('/trips/:id', async(req, res, next) => {
+  const { id } = req.params;
+  const { userId } = req.body;
+  const addUser = {
+    user_id: userId,
+    trip_id: id
+  }
+
+  const insertNewUsersSuccess = await insertNewUserIntoUsersTrips(addUser, id);
+  const insertUserIntoTrips = await insertNewUserIntoTrips(userId, id);
+
+  if (insertUsersSuccess) {
+    res.status(201).json();
+  } else {
+    res.status(500).json();
+  };
+
+});
+
+//add new user to the group array 
+//pass newuser w/ userID into users_trips
+
+
 
 module.exports = {
   tripsRouter: router,
