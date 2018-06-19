@@ -4,37 +4,36 @@ const express = require('express');
 const router = express.Router();
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
+const util = require('util');
 
-
-router.get('/accommodations', (req, res, next) => {
-
-  const userId = getUserId(req);
-
-  knex.select('a.id', 'a.user_id', 'u.fullname', 'ua.status', 'a.hotel', 'a.address', 'a.arrival', 'a.departure', 'a.phone')
-    .from('users_accommodations as ua')
-
-    .leftJoin('users as u', 'ua.user_id', 'u.id')
-    .leftJoin('accommodations as a', 'ua.trip_id', 'a.id')
-    .then(results => {
-      console.log(res.json(results));
+const insertNewAccommodation= NewAccommodation =>{
+    return knex.insert(NewAccommodation)
+        .into('accommodations')
+        .returning('id')
+        .then(([id]) =>{console.log(id, "ID"), id})
+        .catch(e => {
+            console.log('insertNewAccommodation:', e)
+        })
+}
+const insertUserIntoAccommodation =(userId, accommodationId)=> {
+    // console.log(userId);
+    // console.log(accommodationId);
+    return knex.insert({
+       user_id: userId,
+       accommodation_id: accommodationId,
+    }).into("accommodations_users")
+    .then(() => true)
+    .catch(e => {
+        console.error('insertNewAccomodation error: ', e)
+        return false
     })
-    .catch(err => {
-      next(err);
-    });
-});
-router.post('/accommodations', (req, res, next) => {
+}
+router.post('/trips/:id/accommodations', async (req, res, next) => {
+  const userId = 34;
+  //getUserId(req);
+  const { id } = req.params;
 
-  const userId = getUserId(req);
   const { hotel, address, arrival, departure, phone } = req.body;
-
-  const requiredFields = ['hotel', 'address'];
-  const missingField = requiredFields.find(field => !(field in req.body));
-
-  if (missingField) {
-    const err = new Error(`Missing '${missingField}' in request body`);
-    err.status = 422;
-    return next(err);
-  }
 
   const newAccommodation = {
     user_id: userId,
@@ -45,32 +44,15 @@ router.post('/accommodations', (req, res, next) => {
     phone: phone,
   };
 
-  let accommodationId;
+    const NewAccommodationId = await insertNewAccommodation(newAccommodation);
+    console.log(NewAccommodationId)
+    const success = insertUserIntoAccommodation(userId, NewAccommodationId)
 
-  knex.insert(newAccommodation)
-    .into('accommodations')
-    .returning('id')
-    .then(([id]) => {
-      accommodationId = id;
-    })
-    .then(() => {
-      return knex.select('a.id', 'a.user_id', 'u.fullname', 'ua.status', 'a.hotel', 'a.address', 'a.arrival', 'a.departure', 'a.phone')
-        .from('accommodations')
-        .leftJoin('users', 'accommodation.user_id', 'users.id')
-        .where('accommodation.id', accommodationId)
-        .andWhere('accommodation.user_id', userId)
-        .first();
-    })
-    .then(result => {
-      if (result) {
-        res.location(`${req.originalUrl}/${accommodationId}`).status(201).json(result);
-      } else {
-        next();
-      }
-    })
-    .catch(err => {
-      next(err);
-    });
+    if (success) {
+        res.status(201).json();
+    } else {
+        res.status(500).json();
+    }
 });
 
 router.put('/accommodations/:id', (req, res, next) => {
@@ -119,7 +101,5 @@ router.put('/accommodations/:id', (req, res, next) => {
     });
 
 });
-
-
 
 module.exports = router;
