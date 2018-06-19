@@ -2,24 +2,22 @@
 
 const express = require('express');
 const router = express.Router();
-const { dbGet } = require('../db-knex');
+const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 
 const insertNewAccommodation = NewAccommodation => {
-  const knex = dbGet();
   return knex.insert(NewAccommodation)
     .into('accommodations')
     .returning('id')
-    .then(([id]) => id)
+    .then(([id]) => { console.log(id, "ID"), id })
     .catch(e => {
       console.log('insertNewAccommodation:', e)
     })
 }
 const insertUserIntoAccommodation = (userId, accommodationId) => {
-  const knex = dbGet();
-  console.log(userId);
-  console.log(accommodationId);
+  // console.log(userId);
+  // console.log(accommodationId);
   return knex.insert({
     user_id: userId,
     accommodation_id: accommodationId,
@@ -31,23 +29,21 @@ const insertUserIntoAccommodation = (userId, accommodationId) => {
     })
 }
 router.post('/trips/:id/accommodations', async (req, res, next) => {
-  const knex = dbGet();
-  const userId = 1;
+  const userId = 34;
   //getUserId(req);
   const { id } = req.params;
 
-  const { name, refnum, checkin, checkout } = req.body;
-
+  const { hotel, address, arrival, departure, phone } = req.body;
 
   const newAccommodation = {
-    trip_id: id,
-    name: name,
-    refnum: refnum,
-    checkin: checkin,
-    checkout: checkout,
-  }
+    user_id: userId,
+    hotel: hotel,
+    address: address,
+    arrival: arrival,
+    departure: departure,
+    phone: phone,
+  };
 
-  let accommodationId;
   const NewAccommodationId = await insertNewAccommodation(newAccommodation);
   console.log(NewAccommodationId)
   const success = insertUserIntoAccommodation(userId, NewAccommodationId)
@@ -59,5 +55,51 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
   }
 });
 
+router.put('/accommodations/:id', (req, res, next) => {
+
+
+  const userId = getUserId(req);
+  const accommodationId = req.params.id;
+  const { hotel, address, arrival, departure, phone } = req.body;
+
+  const updatedAccommodation = {
+    user_id: userId,
+    hotel: hotel,
+    address: address,
+    arrival: arrival,
+    departure: departure,
+    phone: phone,
+  };
+
+  knex('accommodation.id').from('accommodations')
+    .where('accommodation.id', accommodationId)
+    .andWhere('baccommodation.user_id', userId)
+    .then(result => {
+      if (result && result.length > 0) {
+        knex('accommodations')
+          .update(updatedAccommodation)
+          .where('id', accommodationId)
+          .then(() => {
+            return knex.select('a.id', 'a.user_id', 'u.fullname', 'ua.status', 'a.hotel', 'a.address', 'a.arrival', 'a.departure', 'a.phone')
+              .from('accommodations')
+              .leftJoin('users', 'accommodation.user_id', 'users.id')
+              .where('accommodation.id', accommodationId)
+              .andWhere('accommodation.user_id', userId)
+              .first()
+              .then(result => {
+                if (result) {
+                  res.json(result);
+                }
+              });
+          });
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+
+});
 
 module.exports = router;

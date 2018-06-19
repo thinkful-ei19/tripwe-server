@@ -18,7 +18,7 @@ async function getTripById(tripId) {
   const group = await getUsersByTripId(tripId);
   const accommodations = await getAccommodationsByTripId(tripId);
   const plans = await getPlansByTripId(tripId);
-  const budget = await getBudgetByTripId(tripId)
+  const budget = await getBudgetAndTransactionsByTripId(tripId)
   return { trip, group, accommodations, plans, budget }
 }
 
@@ -129,7 +129,8 @@ const getPlansByTripId = tripId => {
   return knex.select(
     'p.id',
     'p.description',
-    'p.date'
+    'p.date',
+    'p.link'
   )
   .from('plans as p')
   .where({ trip_id: tripId })
@@ -138,20 +139,42 @@ const getPlansByTripId = tripId => {
     return res;
   })}
 
-const getBudgetByTripId = tripId => {
+async function getBudgetAndTransactionsByTripId(tripId) {
+  const trip = await getBudgetByTripId(tripId);
+  const transactions = await getTransactionsByTripId(tripId);
+  return { ...trip, transactions };
+}
 
-  return knex.select(
-    'b.id',
-    'b.totalbudget',
-    'b.currentspending'
-  )
-  .from('budgets as b')
-  .where({ trip_id: tripId })
-  .first()
-  .then(res => {
-    console.log('getBudgetByTripId res: ', res)
-    return res;
-  })}
+const getBudgetByTripId = (tripId) => {
+  return knex
+    .select(
+      'b.trip_id as tripId',
+      'b.available'
+    )
+    .from('budgets as b')
+    .where({ trip_id: tripId })
+    .catch(err => {
+      console.error(`[getBudgetByTripId] Error: ${err}`)
+      return null
+    })
+}
+
+const getTransactionsByTripId = (tripId) => {
+  return knex
+    .select(
+      't.id',
+      't.trip_id as tripId',
+      't.description',
+      't.amount',
+    )
+    .from('transactions as t')
+    .where({ trip_id: tripId })
+    .orderBy('id', 'desc')
+    .catch(err => {
+      console.error(`[getTransactionsByTripId] Error: ${err}`)
+      return null
+    })
+}
 
 /*========POST TRIP========== */
 

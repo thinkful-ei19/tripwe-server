@@ -7,6 +7,23 @@ DROP TABLE IF EXISTS plans;
 DROP TABLE IF EXISTS users_trips;
 DROP TABLE IF EXISTS users_flights;
 DROP TABLE IF EXISTS accommodations_users;
+CREATE TABLE airports (
+  id serial PRIMARY KEY,
+  AirportName text,
+  City text,
+  Country text,
+  AirportCode text,
+  Abv text,
+  Latitude double precision,
+  Longitude double precision,
+  Altitude int,
+  Timezone int,
+  DST text,
+  TimezoneDB text,
+  Type text,
+  Source text
+);
+
 
 CREATE TABLE users (
     id serial PRIMARY KEY,
@@ -31,8 +48,7 @@ CREATE TABLE accommodations (
     name text,
     refNum text,
     checkIn date,
-    checkOut date,
-    phone_num int
+    checkOut date
 );
 CREATE TABLE flights (
     id serial PRIMARY KEY,
@@ -42,24 +58,32 @@ CREATE TABLE flights (
     incomingArrivalTime DATE,
     incomingDepartureAirport text,
     incomingArrivalAirport text,
-    incomingFlightNum text,
+    incomingFlightNum int,
     outgoingDepartureTime DATE,
     outgoingArrivalTime DATE,
     outgoingDepartureAirport text,
     outgoingArrivalAirport text,
-    outgoingFlightNum text
+    outgoingFlightNum int
 );
 CREATE TABLE plans (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
     date DATE,
-    description text NOT NULL
+    description text NOT NULL,
+    link text
 );
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
+    trip_id int REFERENCES trips UNIQUE,
+    available int
+);
+
+CREATE TABLE transactions (
+    id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
-    totalBudget int,
-    currentSpending int
+    description text,
+    amount decimal,
+    type smallint
 );
 CREATE TABLE users_trips (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
