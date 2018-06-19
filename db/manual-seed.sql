@@ -70,13 +70,21 @@ CREATE TABLE plans (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
     date DATE,
-    description text NOT NULL
+    description text NOT NULL,
+    link text
 );
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
+    trip_id int REFERENCES trips UNIQUE,
+    available int
+);
+
+CREATE TABLE transactions (
+    id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
-    totalBudget int,
-    currentSpending int
+    description text,
+    amount decimal,
+    type smallint
 );
 CREATE TABLE users_trips (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -96,35 +104,37 @@ CREATE TABLE accommodations_users (
     CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, accommodation_id)
 );
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+INSERT into budgets (trip_id, available) VALUES
+(30, 5000);
 INSERT into users ( fullname, email, username, password) VALUES
 ('victoria', 'v@gmail.com', 'victoria', 'password');
 
 INSERT into trips (user_id, name, destination, description, arrival, departure) VALUES
-(26, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+(30, 'OZ Trip', 'Perth', 'fun in the sun', TO_DATE('30/05/2019','DD/MM/YYYY'), TO_DATE('30/10/2019','DD/MM/YYYY'));
 
 INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut)VALUES
-(1, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+(30, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
 
 INSERT into flights ( trip_id, user_id, IncomingDepartureTime, IncomingArrivalTime, IncomingDepartureAirport, IncomingArrivalAirport, IncomingFlightNum, OutgoingDepartureTime, OutgoingArrivalTime, OutgoingDepartureAirport, OutgoingArrivalAirport, OutgoingFlightNum) VALUES
-( 1, 1, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
+( 30, 26, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
 
-INSERT into plans (trip_id, date, description) VALUES
-(1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
+INSERT into plans (trip_id, date, description, link) VALUES
+(26, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose', 'https://www.tripadvisor.co.uk/Attraction_Review-g32655-d110202-Reviews-Melrose_Avenue-Los_Angeles_California.html');
 
 INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
-(1, 5000, 2000);
+(30, 5000, 2000);
 
 INSERT into users ( fullname, email, username, password) VALUES
 ('bianca', 'b@gmail.com', 'bianca', 'password123');
 
 INSERT into trips (user_id, name, destination, description, arrival, departure) VALUES
-(2, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+(34, 'US Trip', 'Los Angeles', 'fun in the sun', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
 
 INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut, phone_num)VALUES
-(1, 'Hilton', '1234ABC', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 07957298374);
+(1, 'AirpBnN', '1234ABC', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 07957298374);
 
 INSERT into flights (trip_id, user_id, IncomingDepartureTime, IncomingArrivalTime, IncomingDepartureAirport, IncomingArrivalAirport, IncomingFlightNum, OutgoingDepartureTime, OutgoingArrivalTime, OutgoingDepartureAirport, OutgoingArrivalAirport, OutgoingFlightNum) VALUES
-(1, 2, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
+(1, 34, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
 
 INSERT into plans (trip_id, date, description) VALUES
 (1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose');
@@ -133,19 +143,19 @@ INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
 (1, 5000, 2000);
 
 INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
-(1, 1, 0, 1)
+(4, 26, 0);
 
 INSERT into users_flights (user_id, flight_id) VALUES
-(1, 1)
+(34, 20);
 
 INSERT into accommodations_users (user_id, accommodation_id) VALUES
-(1, 1)
+(34, 6);
 
 INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
-(2, 1, 0, 1)
+(34, 1, 0, 1);
 
 INSERT into users_flights (user_id, flight_id) VALUES
-(2, 1)
+(34, 1);
 
 INSERT into accommodations_users (user_id, accommodation_id) VALUES
-(2, 1)
+(34, 1);
