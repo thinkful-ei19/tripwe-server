@@ -17,6 +17,7 @@ const { tripsRouter } = require('./routes/trips');
 const plansRouter = require('./routes/plans');
 const flightsRouter = require('./routes/flights');
 const budgetRouter = require('./routes/budget');
+const accommodationsRouter = require('./routes/accommodations');
 const app = express();
 
 passport.use(localStrategy);
@@ -48,6 +49,7 @@ app.use('/api', plansRouter);
 app.use('/api', flightsRouter);
 app.use('/api', budgetRouter);
 app.use('/api', dashboardRouter);
+app.use('/api', accommodationsRouter);
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {

@@ -92,8 +92,9 @@ CREATE TABLE users_flights (
 );
 CREATE TABLE accommodations_users (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    trip_id int REFERENCES trips (id) ON UPDATE CASCADE ON DELETE CASCADE,
     accommodation_id int REFERENCES accommodations (id) ON UPDATE CASCADE,
-    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, accommodation_id)
+    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, trip_id, accommodation_id)
 );
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 INSERT into users ( fullname, email, username, password) VALUES

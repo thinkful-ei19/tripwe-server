@@ -21,23 +21,17 @@ router.get('/dashboard', (req, res, next) => {
     't.arrival',
     't.departure'
   )
-  .from('trips as t')
-  .where({ user_id: userId })
-  .then(async (trips) => {
-    console.log(trips, "trips")
-    const upcomingTrips =  await getFutureTrips(trips)
-  // console.log(upcomingTrips, "FUTRE")
-    const previousTrips = await getPreviousTrips(trips)
-    //console.log(previousTrips, "PREV")
-    const closestTrip = await getTripById(upcomingTrips[0].id)
-
-    res.json({ closestTrip, upcomingTrips, previousTrips });
-  })
-  .catch(e => {
-      console.error("[trips] Error caught!", inspect(e), inspect(e.stack))
-      next(e);
-  });
-})
+    .from('trips as t')
+    .where({ user_id: userId })
+    .then(result => {
+      // console.log("dashboard result: ", result);
+      res.json(result);
+    })
+    .catch(err => {
+      console.error('[trips] Error caught!', inspect(e), inspect(e.stack));
+      next(err);
+    });
+});
 
 function getPreviousTrips(trips) {
   return _
