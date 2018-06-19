@@ -2,13 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const {dbGet} = require('../db-knex');
+const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 
 const insertFlight = newFlight => {
-  const knex = dbGet();
   return knex.insert(newFlight)
     .into('flights')
     .returning('id')
@@ -19,7 +18,6 @@ const insertFlight = newFlight => {
 }
 
 const insertFlightInTrips = (tripId, userId, flightId) => {
-  const knex = dbGet();
   return knex.insert({
     trip_id: tripId,
     user_id: userId,
@@ -34,21 +32,21 @@ const insertFlightInTrips = (tripId, userId, flightId) => {
 }
 
 router.post('/trips/:id/flights', async (req, res, next) => {
-  const knex = dbGet();
   const userId = getUserId();
   const { id } = req.params;
 
   const {
-  incomingDepartureTime,
-  incomingArrivalTime,
-  incomingDepartureAirport,
-  incomingArrivalAirport,
-  incomingFlightNum,
-  outgoingDepartureTime,
-  outgoingArrivalTime,
-  outgoingDepartureAirport,
-  outgoingArrivalAirport,
-  outgoingFlightNum } = req.body;
+    incomingDepartureTime,
+    incomingArrivalTime,
+    incomingDepartureAirport,
+    incomingArrivalAirport,
+    incomingFlightNum,
+    outgoingDepartureTime,
+    outgoingArrivalTime,
+    outgoingDepartureAirport,
+    outgoingArrivalAirport,
+    outgoingFlightNum
+  } = req.body;
 
   const newFlight = {
     user_id: userId,

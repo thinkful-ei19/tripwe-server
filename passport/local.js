@@ -3,7 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
-const {dbGet} = require('../db-knex');
+const { knex } = require('../db-knex');
 const { Strategy: LocalStrategy } = require('passport-local');
 //const User = require('../models/user');
 // does pg have models too??
@@ -12,7 +12,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 
 const localStrategy = new LocalStrategy((username, password, done) => {
-  const knex = dbGet();
+   
   let user;
   knex.select()
     .from('users')
