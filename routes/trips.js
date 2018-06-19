@@ -102,10 +102,11 @@ const getAccommodationsByTripId = tripId => {
     'a.id',
     'a.trip_id',
     'a.name',
-    'a.refnum',
-    'a.checkin',
-    'a.checkout',
-    'a.phone_num'
+    'a.address',
+    'a.reference',
+    'a.arrival',
+    'a.departure',
+    'a.phone'
   )
   .from('accommodations as a')
   .where({ trip_id: tripId })
