@@ -14,5 +14,6 @@ module.exports = {
       process.env.DATABASE_URL || 'postgres://qhhyctqy:JrY0ktm5xUI6maYKUpwg0WkOV-a1XweP@horton.elephantsql.com:5432/qhhyctqy',
   TEST_DATABASE_URL:
       process.env.TEST_DATABASE_URL ||
-      'postgres://localhost/thinkful-backend-test'
+      'postgres://localhost/thinkful-backend-test',
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY 
 };

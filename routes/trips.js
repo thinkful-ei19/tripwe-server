@@ -6,6 +6,8 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
+const sgMail = require('@sendgrid/mail');
+const { SENDGRID_API_KEY } = require('../config');
 
 router.get('/trips/:id', async (req, res, next) => {
     const { id } = req.params;
@@ -193,44 +195,34 @@ router.post('/trips', async (req,res,next) => {
     res.status(500).json();
   };
 })
-/* ========PUT / ADDING MORE USERS TO THE GROUP IN THE TRIP ========= */
-//
-const insertNewUserIntoUsersTrips = (userId, id) => {
+/* ========POST / INVITING USERS WITH SENDGRID ========= */
 
-  return knex.insert({user_id : userId, trip_id: id})
-    .into('users_trips')
-    .then(() => true)
-    .catch(e => {
-      console.error('insertUsersTrips error: ', e)
-      return false })
-}
-const insertNewUserIntoTrips = (userId, id) => {
-
-  return knex.insert({user_id:  userId})
-    .into('trips')
-    .then(()=> true)
-    .catch(e => {
-      console.error('insertUser into Trips: ', e)
-    })
-}
-router.put('/trips/:id', async(req, res, next) => {
+router.post('/trips/:id', (req, res, next) => {
   const { id } = req.params;
-  const { userId } = req.body;
-  const addUser = {
-    user_id: userId,
-    trip_id: id
-  }
-
-  const insertNewUsersSuccess = await insertNewUserIntoUsersTrips(addUser, id);
-  const insertUserIntoTrips = await insertNewUserIntoTrips(userId, id);
-
-  if (insertUsersSuccess) {
-    res.status(201).json();
-  } else {
-    res.status(500).json();
+  const { email } = req.body;
+  //const useremail= 'vasquezbmarie@gmail.com';
+  
+  sgMail.setApiKey('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');
+  console.log(SENDGRID_API_KEY);
+  const msg = {
+    to: email,
+    from: 'tripWe@tripwe.com',
+    subject: 'You are invited!',
+    text: 'join your friends on the trip of a life time!',
+    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
   };
-
+  sgMail.send(msg)
+    .then(result => {
+      console.log(result);
+    })
+    .catch(err => {
+      console.log('these are the errors',err.response.body.errors);
+    })
 });
+
+  
+
+
 
 //add new user to the group array 
 //pass newuser w/ userID into users_trips
