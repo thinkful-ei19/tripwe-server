@@ -201,15 +201,44 @@ router.post('/trips/:id', (req, res, next) => {
   const { id } = req.params;
   const { email } = req.body;
   //const useremail= 'vasquezbmarie@gmail.com';
-  
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)  
-  console.log(SENDGRID_API_KEY);
+  const findEmailInDB = email => {
+    knex.select(
+      'u.id',
+      'u.fullname',
+      'u.email',
+      'u.username'
+    )
+    .from('users as u')
+    .where(u.email = email)
+    .returning('id')
+    .then(([id]) =>id);
+  }
+  //want to display unregistered in users_trips
+  //insert into users into users_trips select will happen
+  const insertUserIntoTrip = (userId, id ) => {
+
+    return knex.insert({user_id : userId, trip_id: id})
+      .into('users_trips')
+      .then(() => true)
+      .catch(e => {
+        console.error('insertFlight error: ', e)
+        return false })
+  }
+ 
+  sgMail.setApiKey(SENDGRID_API_KEY)  
+  const unregisteredMsg = {
+    to: email,
+    from: 'tripWe@tripwe.com',
+    subject: 'You are invited!',
+    text: `Register at <a href="/users/?tripId=${id}">`,
+    html: `<strong>TripWe</strong>`,
+  };
   const msg = {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'You are invited!',
-    text: 'join your friends on the trip of a life time!',
-    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+    text: `View the trip at  <a href="/trips/${id}">`,
+    html: `<strong>TripWe</strong>`,
   };
   sgMail.send(msg)
     .then(result => {
@@ -223,6 +252,7 @@ router.post('/trips/:id', (req, res, next) => {
   
 
 
+//if theres a trip id be sure its included in req
 
 //add new user to the group array 
 //pass newuser w/ userID into users_trips
@@ -231,5 +261,6 @@ router.post('/trips/:id', (req, res, next) => {
 
 module.exports = {
   tripsRouter: router,
-  getTripById
+  getTripById,
+  insertUserIntoTrip
 }

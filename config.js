@@ -15,5 +15,5 @@ module.exports = {
   TEST_DATABASE_URL:
       process.env.TEST_DATABASE_URL ||
       'postgres://localhost/thinkful-backend-test',
-  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY 
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY
 };
