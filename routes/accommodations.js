@@ -10,7 +10,7 @@ const insertNewAccommodation = NewAccommodation => {
   return knex.insert(NewAccommodation)
     .into('accommodations')
     .returning('id')
-    .then(([id]) => { console.log(id, "ID"), id })
+    .then(([id]) => id)
     .catch(e => {
       console.log('insertNewAccommodation:', e)
     })
@@ -33,19 +33,20 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
   //getUserId(req);
   const { id } = req.params;
 
-  const { hotel, address, arrival, departure, phone } = req.body;
+  const { name, address, reference, arrival, departure, phone } = req.body;
 
   const newAccommodation = {
-    user_id: userId,
-    hotel: hotel,
-    address: address,
-    arrival: arrival,
-    departure: departure,
-    phone: phone,
+    trip_id: id,
+    name,
+    address,
+    reference,
+    arrival,
+    departure,
+    phone
   };
-
+  console.log(newAccommodation, 'newAccommodation')
   const NewAccommodationId = await insertNewAccommodation(newAccommodation);
-  console.log(NewAccommodationId)
+  console.log(NewAccommodationId, 'NewAccommodationId')
   const success = insertUserIntoAccommodation(userId, NewAccommodationId)
 
   if (success) {
@@ -55,51 +56,51 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
   }
 });
 
-router.put('/accommodations/:id', (req, res, next) => {
-
-
-  const userId = getUserId(req);
-  const accommodationId = req.params.id;
-  const { hotel, address, arrival, departure, phone } = req.body;
-
-  const updatedAccommodation = {
-    user_id: userId,
-    hotel: hotel,
-    address: address,
-    arrival: arrival,
-    departure: departure,
-    phone: phone,
-  };
-
-  knex('accommodation.id').from('accommodations')
-    .where('accommodation.id', accommodationId)
-    .andWhere('baccommodation.user_id', userId)
-    .then(result => {
-      if (result && result.length > 0) {
-        knex('accommodations')
-          .update(updatedAccommodation)
-          .where('id', accommodationId)
-          .then(() => {
-            return knex.select('a.id', 'a.user_id', 'u.fullname', 'ua.status', 'a.hotel', 'a.address', 'a.arrival', 'a.departure', 'a.phone')
-              .from('accommodations')
-              .leftJoin('users', 'accommodation.user_id', 'users.id')
-              .where('accommodation.id', accommodationId)
-              .andWhere('accommodation.user_id', userId)
-              .first()
-              .then(result => {
-                if (result) {
-                  res.json(result);
-                }
-              });
-          });
-      } else {
-        next();
-      }
-    })
-    .catch(err => {
-      next(err);
-    });
-
-});
+// router.put('/accommodations/:id', (req, res, next) => {
+//
+//
+//   const userId = getUserId(req);
+//   const accommodationId = req.params.id;
+//   const { hotel, address, arrival, departure, phone } = req.body;
+//
+//   const updatedAccommodation = {
+//     user_id: userId,
+//     hotel: hotel,
+//     address: address,
+//     arrival: arrival,
+//     departure: departure,
+//     phone: phone,
+//   };
+//
+//   knex('accommodation.id').from('accommodations')
+//     .where('accommodation.id', accommodationId)
+//     .andWhere('baccommodation.user_id', userId)
+//     .then(result => {
+//       if (result && result.length > 0) {
+//         knex('accommodations')
+//           .update(updatedAccommodation)
+//           .where('id', accommodationId)
+//           .then(() => {
+//             return knex.select('a.id', 'a.user_id', 'u.fullname', 'ua.status', 'a.hotel', 'a.address', 'a.arrival', 'a.departure', 'a.phone')
+//               .from('accommodations')
+//               .leftJoin('users', 'accommodation.user_id', 'users.id')
+//               .where('accommodation.id', accommodationId)
+//               .andWhere('accommodation.user_id', userId)
+//               .first()
+//               .then(result => {
+//                 if (result) {
+//                   res.json(result);
+//                 }
+//               });
+//           });
+//       } else {
+//         next();
+//       }
+//     })
+//     .catch(err => {
+//       next(err);
+//     });
+//
+// });
 
 module.exports = router;

@@ -8,9 +8,9 @@ const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 
 router.get('/trips/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const trip = await getTripById(id);
-    res.json(trip)
+  const { id } = req.params;
+  const trip = await getTripById(id);
+  res.json(trip)
 })
 
 async function getTripById(tripId) {
@@ -33,13 +33,14 @@ const getTripInfoById = id => {
     't.arrival',
     't.departure'
   )
-  .from('trips as t')
-  .where({ id })
-  .first()
-  .then(res => {
-     console.log('getTripsById res:', res)
-    return res;
-  })}
+    .from('trips as t')
+    .where({ id })
+    .first()
+    .then(res => {
+      console.log('getTripsById res:', res)
+      return res;
+    })
+}
 
 const getUsersByTripId = tripId => {
 
@@ -66,14 +67,15 @@ const getUsersByTripId = tripId => {
     // status
     'ut.status'
   )
-  .from('users_trips as ut')
-  .leftJoin('users as u', 'ut.user_id', 'u.id')
-  .leftJoin('flights as f', 'ut.flight_id', 'f.id')
-  .where('ut.trip_id', tripId)
-  .then(res => {
-    // console.log('getGroupByTripId res: ', res)
-    return res;
-  })}
+    .from('users_trips as ut')
+    .leftJoin('users as u', 'ut.user_id', 'u.id')
+    .leftJoin('flights as f', 'ut.flight_id', 'f.id')
+    .where('ut.trip_id', tripId)
+    .then(res => {
+      // console.log('getGroupByTripId res: ', res)
+      return res;
+    })
+}
 
 // models/accommodation.js -----START-----
 // accommodations[n]users prop
@@ -86,13 +88,14 @@ const getUsersByAccommodationId = accommodationId => {
     'u.email',
     'u.username'
   )
-  .from('accommodations_users as au')
-  .leftJoin('users as u', 'au.user_id', 'u.id')
-  .where({ accommodation_id: accommodationId })
-  .then(res => {
-    // console.log('getGroupByTripId res: ', res)
-    return res; // array of accommodation object
-  })}
+    .from('accommodations_users as au')
+    .leftJoin('users as u', 'au.user_id', 'u.id')
+    .where({ accommodation_id: accommodationId })
+    .then(res => {
+      // console.log('getGroupByTripId res: ', res)
+      return res; // array of accommodation object
+    })
+}
 
 // accommodations[n]accommodation prop
 const getAccommodationsByTripId = tripId => {
@@ -102,25 +105,27 @@ const getAccommodationsByTripId = tripId => {
     'a.id',
     'a.trip_id',
     'a.name',
-    'a.refnum',
-    'a.checkin',
-    'a.checkout',
-    'a.phone_num'
+    'a.address',
+    'a.reference',
+    'a.arrival',
+    'a.departure',
+    'a.phone'
   )
-  .from('accommodations as a')
-  .where({ trip_id: tripId })
-  .then(accommodations => {
-    // console.log('getaccommodationsByTripId res: ', accommodations)
+    .from('accommodations as a')
+    .where({ trip_id: tripId })
+    .then(accommodations => {
+      // console.log('getaccommodationsByTripId res: ', accommodations)
 
-    const promises = accommodations.map(async accom => {
-      return {
-        ...accom,
-        users: await getUsersByAccommodationId(accom.id)
-      }
+      const promises = accommodations.map(async accom => {
+        return {
+          ...accom,
+          users: await getUsersByAccommodationId(accom.id)
+        }
+      })
+
+      return Promise.all(promises);
     })
-
-    return Promise.all(promises);
-  })}
+}
 // models/accommodation.js ------END------
 
 
@@ -132,12 +137,13 @@ const getPlansByTripId = tripId => {
     'p.date',
     'p.link'
   )
-  .from('plans as p')
-  .where({ trip_id: tripId })
-  .then(res => {
-    // console.log('getPlansByTripId res: ', res)
-    return res;
-  })}
+    .from('plans as p')
+    .where({ trip_id: tripId })
+    .then(res => {
+      // console.log('getPlansByTripId res: ', res)
+      return res;
+    })
+}
 
 async function getBudgetAndTransactionsByTripId(tripId) {
   const trip = await getBudgetByTripId(tripId);
@@ -166,7 +172,7 @@ const getTransactionsByTripId = (tripId) => {
       't.trip_id as tripId',
       't.description',
       't.amount',
-    )
+  )
     .from('transactions as t')
     .where({ trip_id: tripId })
     .orderBy('id', 'desc')
@@ -187,15 +193,16 @@ const insertNewTrip = newTrip => {
 }
 const insertUserIntoTrip = (userId, newTripId) => {
 
-    return knex.insert({user_id : userId, trip_id: newTripId})
-      .into('users_trips')
-      .then(() => true)
-      .catch(e => {
-        console.error('insertFlight error: ', e)
-        return false })
+  return knex.insert({ user_id: userId, trip_id: newTripId })
+    .into('users_trips')
+    .then(() => true)
+    .catch(e => {
+      console.error('insertFlight error: ', e)
+      return false
+    })
 }
 
-router.post('/trips', async (req,res,next) => {
+router.post('/trips', async (req, res, next) => {
   const userId = getUserId(req);
   const { name, destination, description, arrival, departure } = req.body;
 
@@ -211,7 +218,7 @@ router.post('/trips', async (req,res,next) => {
   const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
 
   if (insertUsersSuccess) {
-    res.status(201).json();
+    res.status(201).json(newTripId);
   } else {
     res.status(500).json();
   };

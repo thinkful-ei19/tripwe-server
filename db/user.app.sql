@@ -46,9 +46,11 @@ CREATE TABLE accommodations (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips,
     name text,
-    refNum text,
-    checkIn date,
-    checkOut date
+    address text,
+    reference text,
+    arrival date,
+    departure date,
+    phone int
 );
 CREATE TABLE flights (
     id serial PRIMARY KEY,

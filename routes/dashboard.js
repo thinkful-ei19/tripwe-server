@@ -20,37 +20,23 @@ router.get('/dashboard', (req, res, next) => {
     't.arrival',
     't.departure'
   )
-<<<<<<< HEAD
     .from('trips as t')
     .where({ user_id: userId })
-    .then(result => {
-      // console.log("dashboard result: ", result);
-      res.json(result);
+    .then(async (trips) => {
+      //  console.log(trips, "trips")
+      const upcomingTrips = await getFutureTrips(trips)
+      //  console.log(upcomingTrips, "FUTRE")
+      const previousTrips = await getPreviousTrips(trips)
+      //console.log(previousTrips, "PREV")
+      const closestTrip = await getTripById(upcomingTrips[0].id)
+      //console.log(previousTrips, "PREV")
+      res.json({ closestTrip, upcomingTrips, previousTrips });
     })
-    .catch(err => {
-      console.error('[trips] Error caught!', inspect(e), inspect(e.stack));
-      next(err);
-    });
-});
-=======
-  .from('trips as t')
-  .where({ user_id: userId })
-  .then(async (trips) => {
-    console.log(trips, "trips")
-    const upcomingTrips =  await getFutureTrips(trips)
-  console.log(upcomingTrips, "FUTRE")
-    const previousTrips = await getPreviousTrips(trips)
-    //console.log(previousTrips, "PREV")
-    const closestTrip = await getTripById(upcomingTrips[0].id)
-  //console.log(previousTrips, "PREV")
-    res.json({ closestTrip, upcomingTrips, previousTrips });
-  })
-  .catch(e => {
+    .catch(e => {
       console.error("[trips] Error caught!", inspect(e), inspect(e.stack))
       next(e);
-  });
+    });
 })
->>>>>>> 360dbd35371c913994517d6c333175cff35a8e19
 
 function getPreviousTrips(trips) {
   return _
