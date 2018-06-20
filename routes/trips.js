@@ -202,7 +202,7 @@ router.post('/trips/:id', (req, res, next) => {
   const { email } = req.body;
   //const useremail= 'vasquezbmarie@gmail.com';
   
-  sgMail.setApiKey('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');
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY)  
   console.log(SENDGRID_API_KEY);
   const msg = {
     to: email,
