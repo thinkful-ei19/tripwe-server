@@ -18,10 +18,10 @@ router.post('/trips/:id/budgets', (req, res, next) => {
 
   knex.insert(newBudget)
     .into('budgets')
-    .returning('id')
+    .returning('available')
     .then(result => {
       if (result) {
-        res.status(201).json();
+        res.status(201).json(result);
       } else {
         next();
       }
@@ -43,23 +43,25 @@ router.post('/trips/:id/transactions', async (req, res, next) => {
     type
   }
 
+  let updatedBudget;
+  let transaction;
   try {
-    await insertTransaction(newTransaction)
-    await amendAmount(id, amount, type)
+    transaction = await insertTransaction(newTransaction)
+    updatedBudget = await amendAmount(id, amount, type)
   } catch (e) {
     console.error('[/transactions] Error: ', e)
     return res.status(500).send()
   }
-
-  res.status(200).json()
+    res.status(201).json({updatedBudget, transaction});
 })
 
 function insertTransaction(newTransaction) {
   return knex.insert(newTransaction)
     .into('transactions')
     .returning('id')
+    .then(([res]) => knex('transactions').select().where({ id: res }))
     .catch(err => {
-      next(err);
+      console.log(err);
     });
 }
 
@@ -75,6 +77,7 @@ function amendAmount(id, amount, type) {
     SET AVAILABLE = AVAILABLE ${operator} ${amount}
     WHERE TRIP_ID = ${id}
   `)
+  .then(() => knex('budgets').select('available').where({ trip_id: id }))
   .catch(err => {
     next(err);
   });

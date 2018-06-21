@@ -78,7 +78,7 @@ CREATE TABLE plans (
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips UNIQUE,
-    available int
+    available int DEFAULT 0
 );
 
 CREATE TABLE transactions (
@@ -113,10 +113,10 @@ INSERT into users ( fullname, email, username, password) VALUES
 ('victoria', 'v@gmail.com', 'victoria', 'password');
 
 INSERT into trips (user_id, name, destination, description, arrival, departure) VALUES
-(30, 'OZ Trip', 'Perth', 'fun in the sun', TO_DATE('30/05/2019','DD/MM/YYYY'), TO_DATE('30/10/2019','DD/MM/YYYY'));
+(34, 'OZ Trip', 'Perth', 'fun in the sun', TO_DATE('01/07/2018','DD/MM/YYYY'), TO_DATE('30/10/2019','DD/MM/YYYY'));
 
-INSERT into accommodations (trip_id, name, refNum, checkIn, checkOut)VALUES
-(30, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'));
+INSERT into accommodations (trip_id, name, reference, arrival, departure, phone, address)VALUES
+(15, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 1285345, '27 Cranbrook Road');
 
 INSERT into flights ( trip_id, user_id, IncomingDepartureTime, IncomingArrivalTime, IncomingDepartureAirport, IncomingArrivalAirport, IncomingFlightNum, OutgoingDepartureTime, OutgoingArrivalTime, OutgoingDepartureAirport, OutgoingArrivalAirport, OutgoingFlightNum) VALUES
 ( 30, 26, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
@@ -152,7 +152,7 @@ INSERT into users_flights (user_id, flight_id) VALUES
 (34, 20);
 
 INSERT into accommodations_users (user_id, accommodation_id) VALUES
-(34, 6);
+(26, 3);
 
 INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
 (34, 1, 0, 1);

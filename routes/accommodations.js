@@ -29,8 +29,7 @@ const insertUserIntoAccommodation =(userId, accommodationId)=> {
     })
 }
 router.post('/trips/:id/accommodations', async (req, res, next) => {
-  const userId = 34;
-  //getUserId(req);
+  const userId = getUserId(req);
   const { id } = req.params;
 
   const { name, address, reference, arrival, departure, phone } = req.body;

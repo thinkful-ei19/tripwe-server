@@ -154,6 +154,7 @@ const getBudgetByTripId = (tripId) => {
     )
     .from('budgets as b')
     .where({ trip_id: tripId })
+    .first()
     .catch(err => {
       console.error(`[getBudgetByTripId] Error: ${err}`)
       return null
