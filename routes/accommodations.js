@@ -7,6 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 
 const insertNewAccommodation = NewAccommodation => {
+  console.log(NewAccommodation, 'insert info');
   return knex.insert(NewAccommodation)
     .into('accommodations')
     .returning('id')
@@ -15,21 +16,22 @@ const insertNewAccommodation = NewAccommodation => {
       console.log('insertNewAccommodation:', e)
     })
 }
-const insertUserIntoAccommodation = (userId, accommodationId) => {
+const insertUserIntoAccommodation = (userId, id, accommodationId) => {
   // console.log(userId);
   // console.log(accommodationId);
   return knex.insert({
     user_id: userId,
+    trip_id: id,
     accommodation_id: accommodationId,
   }).into("accommodations_users")
     .then(() => true)
     .catch(e => {
-      console.error('insertNewAccomodation error: ', e)
+      console.error('insertUserNewAccomodation error: ', e)
       return false
     })
 }
 router.post('/trips/:id/accommodations', async (req, res, next) => {
-  const userId = 34;
+  const userId = getUserId(req);
   //getUserId(req);
   const { id } = req.params;
 
@@ -44,10 +46,10 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
     departure,
     phone
   };
-  console.log(newAccommodation, 'newAccommodation')
+  //console.log(newAccommodation, 'newAccommodation')
   const NewAccommodationId = await insertNewAccommodation(newAccommodation);
   console.log(NewAccommodationId, 'NewAccommodationId')
-  const success = insertUserIntoAccommodation(userId, NewAccommodationId)
+  const success = await insertUserIntoAccommodation(userId, id, NewAccommodationId)
 
   if (success) {
     res.status(201).json();
