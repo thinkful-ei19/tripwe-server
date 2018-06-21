@@ -18,6 +18,7 @@ const plansRouter = require('./routes/plans');
 const flightsRouter = require('./routes/flights');
 const budgetRouter = require('./routes/budget');
 const accommodationsRouter = require('./routes/accommodations');
+const airportsRouter = require('./routes/airports');
 const app = express();
 
 passport.use(localStrategy);
@@ -39,7 +40,8 @@ app.use(
 );
 app.use('/api', authRouter);
 app.use('/api', usersRouter);
-app.get('/api',(req, res)=> {
+app.use('/api', airportsRouter);
+app.get('/api', (req, res) => {
   console.log('Hello! Testing, Testing 123');
 });
 // Endpoints below this require authentication
