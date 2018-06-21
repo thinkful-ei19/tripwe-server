@@ -12,7 +12,7 @@ const { SENDGRID_API_KEY } = require('../config');
 router.get('/trips/:id', async (req, res, next) => {
     const { id } = req.params;
     const trip = await getTripById(id);
-    res.json(trip)
+    res.json(trip);
 })
 
 async function getTripById(tripId) {
@@ -75,7 +75,11 @@ const getUsersByTripId = tripId => {
   .then(res => {
     // console.log('getGroupByTripId res: ', res)
     return res;
-  })}
+  })
+  .catch(err => {
+    console.err(e)
+  })
+}
 
 // models/accommodation.js -----START-----
 // accommodations[n]users prop
@@ -94,7 +98,11 @@ const getUsersByAccommodationId = accommodationId => {
   .then(res => {
     // console.log('getGroupByTripId res: ', res)
     return res; // array of accommodation object
-  })}
+  })
+  .catch(err => {
+    console.err(e)
+  })
+}
 
 // accommodations[n]accommodation prop
 const getAccommodationsByTripId = tripId => {
@@ -195,67 +203,81 @@ router.post('/trips', async (req,res,next) => {
     res.status(500).json();
   };
 })
+
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
+const findEmailInDB = email => {
+  knex.select(
+    'u.id',
+    'u.fullname',
+    'u.email',
+    'u.username'
+  )
+  .from('users as u')
+  .where(u.email = email)
+  .returning('u.id')
+  .then(id => id);
+}
 
 router.post('/trips/:id', (req, res, next) => {
   const { id } = req.params;
   const { email } = req.body;
-  //const useremail= 'vasquezbmarie@gmail.com';
-  const findEmailInDB = email => {
-    knex.select(
-      'u.id',
-      'u.fullname',
-      'u.email',
-      'u.username'
-    )
-    .from('users as u')
-    .where(u.email = email)
-    .returning('id')
-    .then(([id]) =>id);
-  }
-  //want to display unregistered in users_trips
-  //insert into users into users_trips select will happen
-  const insertUserIntoTrip = (userId, id ) => {
 
-    return knex.insert({user_id : userId, trip_id: id})
-      .into('users_trips')
-      .then(() => true)
-      .catch(e => {
-        console.error('insertFlight error: ', e)
-        return false })
-  }
+  const emailInDB =findEmailInDB(email);
+
+  
+  //insert into users into users_trips select will happen
  
   sgMail.setApiKey(SENDGRID_API_KEY)  
   const unregisteredMsg = {
     to: email,
     from: 'tripWe@tripwe.com',
-    subject: 'You are invited!',
+    subject: 'Become a member!',
     text: `Register at <a href="/users/?tripId=${id}">`,
-    html: `<strong>TripWe</strong>`,
+    html: '<strong>TripWe Registration Page</strong>',
   };
   const msg = {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'You are invited!',
-    text: `View the trip at  <a href="/trips/${id}">`,
-    html: `<strong>TripWe</strong>`,
+    text: `View the trip at  <a href= "/trips/${id}">`,
+    html: `<strong>TripWe Join Trip</strong>`,
   };
-  sgMail.send(msg)
-    .then(result => {
-      console.log(result);
-    })
-    .catch(err => {
-      console.log('these are the errors',err.response.body.errors);
-    })
+
+  if (findEmailInDB){
+    sgMail.send(msg);
+    return res.json(msg).status(201);
+  } else {
+    sgMail.send(unregisteredMsg);
+  };
+     // .then(result => {
+    //   console.log(result);
+    // })
+    // .catch(err => {
+    //   console.log('these are the errors',err.response.body.errors);
+    // })
 });
-
-  
-
-
 //if theres a trip id be sure its included in req
 
-//add new user to the group array 
-//pass newuser w/ userID into users_trips
+/*=========DELETE TRIP============ */
+router.delete('/trips/:id', (req, res, next)=> {
+  const userId = getUserId(req);
+  const tripId = req.params.id;
+  knex.del()
+    .where('id', tripId)
+    .andWhere('trips.user_id', userId)
+    .from('trips')
+    .then(res => {
+      if(res){
+        res.status(204).end();
+      } else {
+        next();
+      }
+    })
+    .catch(next);
+})
+
+//we should cascade and then delete and reseed 
+
 
 
 
