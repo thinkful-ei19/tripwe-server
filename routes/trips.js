@@ -8,6 +8,7 @@ const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
+const { API_BASE_URL } = require('../config');
 
 router.get('/trips/:id', async (req, res, next) => {
     const { id } = req.params;
@@ -237,41 +238,50 @@ const findEmailInDB = email => {
     'u.username'
   )
   .from('users as u')
-  .where(u.email = email)
-  .returning('u.id')
-  .then(id => id);
+  .where('email',email)
+  .returning('id')
+  .then(([id]) => (id));
 }
+// const insertInviteUserIntoTrip = (id, tripId) => {
 
+//   return knex.insert({user_id : id, trip_id: tripId})
+//     .into('users_trips')
+//     .then(() => true)
+//     .catch(e => {
+//       console.error('insertFlight error: ', e)
+//       return false })
+// }
 router.post('/trips/:id', (req, res, next) => {
   const { id } = req.params;
   const { email } = req.body;
-
-  const emailInDB =findEmailInDB(email);
-
+  const tripId = id;
+  const userId = findEmailInDB(email);
+  const insertUser = insertUserIntoTrip(userId, tripId);
   
   //insert into users into users_trips select will happen
- 
+ //
   sgMail.setApiKey(SENDGRID_API_KEY)  
   const unregisteredMsg = {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'Become a member!',
-    text: `Register at <a href="/users/?tripId=${id}">`,
+    text: `Register at <a href="${API_BASE_URL}/users/?tripId=${id}">`,
     html: '<strong>TripWe Registration Page</strong>',
   };
   const msg = {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'You are invited!',
-    text: `View the trip at  <a href= "/trips/${id}">`,
-    html: `<strong>TripWe Join Trip</strong>`,
+    text: `View the trip at  <a href="${API_BASE_URL}/trips/${id}">`,
+    html: `<strong>TripWe Join Trip <a href="${API_BASE_URL}/trips/${id}"></strong>`,
   };
 
   if (findEmailInDB){
     sgMail.send(msg);
-    return res.json(msg).status(201);
+    res.json(msg).status(201);
   } else {
     sgMail.send(unregisteredMsg);
+    res.json(unregisteredMsg).status(201);
   };
      // .then(result => {
     //   console.log(result);
@@ -286,7 +296,9 @@ router.post('/trips/:id', (req, res, next) => {
 router.delete('/trips/:id', (req, res, next)=> {
   const userId = getUserId(req);
   const tripId = req.params.id;
-  knex.del()
+  knex.select(
+    //
+  )
     .where('id', tripId)
     .andWhere('trips.user_id', userId)
     .from('trips')

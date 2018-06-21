@@ -73,4 +73,10 @@ router.post('/trips/:id/flights', async (req, res, next) => {
   }
 })
 
+router.delete('/trips/:id/flights/id', (req,res,next)=> {
+  
+  // knex('flights').where({ id: flightId }).del()
+  // .catch(err => console.error(`[deleteFlightById] Error: ${err}`))
+})
+
 module.exports = router;
