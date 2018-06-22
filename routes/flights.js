@@ -31,7 +31,7 @@ const insertFlightInTrips = (tripId, userId, flightId) => {
 }
 
 router.post('/trips/:id/flights', async (req, res, next) => {
-  const userId = getUserId();
+  const userId = getUserId(req);
   const { id } = req.params;
 
   const {
