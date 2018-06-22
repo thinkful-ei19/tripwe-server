@@ -6,6 +6,8 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
+const { getTotalBudgetByTripId } = require('../models/budget')
+const { editTrip } = require('../models/trip');
 
 router.get('/trips/:id', async (req, res, next) => {
     const { id } = req.params;
@@ -141,9 +143,10 @@ const getPlansByTripId = tripId => {
   })}
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  const trip = await getBudgetByTripId(tripId);
+  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
+  const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
-  return { ...trip, transactions };
+  return { total, transactions };
 }
 
 const getBudgetByTripId = (tripId) => {
@@ -217,6 +220,27 @@ router.post('/trips', async (req,res,next) => {
   } else {
     res.status(500).json();
   };
+})
+
+router.put('/trips/:id', (req, res, next) => {
+  const tripId = req.params.id;
+  const { name, destination, description, arrival, departure } = req.body;
+
+  const editedTrip = {
+    name,
+    destination,
+    description,
+    arrival,
+    departure,
+  }
+
+  const success = editTrip(tripId, editedTrip);
+
+  if (success) {
+      res.status(204).json();
+  } else {
+      res.status(500).json();
+  }
 })
 
 module.exports = {
