@@ -50,7 +50,7 @@ CREATE TABLE accommodations (
     address text,
     reference text,
     arrival date,
-    departure date
+    departure date,
     phone int
 );
 CREATE TABLE flights (
