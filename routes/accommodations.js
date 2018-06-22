@@ -12,8 +12,6 @@ const {
         insertUserIntoAccommodation
       } = require('../models/accommodation');
 
-
-
 router.post('/trips/:id/accommodations', async (req, res, next) => {
     const userId = getUserId(req);
     //getUserId(req);
