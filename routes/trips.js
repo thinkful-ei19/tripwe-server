@@ -11,9 +11,9 @@ const { SENDGRID_API_KEY } = require('../config');
 const { API_BASE_URL } = require('../config');
 
 router.get('/trips/:id', async (req, res, next) => {
-    const { id } = req.params;
-    const trip = await getTripById(id);
-    res.json(trip);
+  const { id } = req.params;
+  const trip = await getTripById(id);
+  res.json(trip);
 })
 
 async function getTripById(tripId) {
@@ -36,13 +36,14 @@ const getTripInfoById = id => {
     't.arrival',
     't.departure'
   )
-  .from('trips as t')
-  .where({ id })
-  .first()
-  .then(res => {
-     console.log('getTripsById res:', res)
-    return res;
-  })}
+    .from('trips as t')
+    .where({ id })
+    .first()
+    .then(res => {
+      console.log('getTripsById res:', res)
+      return res;
+    })
+}
 
 const getUsersByTripId = tripId => {
 
@@ -69,17 +70,17 @@ const getUsersByTripId = tripId => {
     // status
     'ut.status'
   )
-  .from('users_trips as ut')
-  .leftJoin('users as u', 'ut.user_id', 'u.id')
-  .leftJoin('flights as f', 'ut.flight_id', 'f.id')
-  .where('ut.trip_id', tripId)
-  .then(res => {
-    // console.log('getGroupByTripId res: ', res)
-    return res;
-  })
-  .catch(err => {
-    console.err(e)
-  })
+    .from('users_trips as ut')
+    .leftJoin('users as u', 'ut.user_id', 'u.id')
+    .leftJoin('flights as f', 'ut.flight_id', 'f.id')
+    .where('ut.trip_id', tripId)
+    .then(res => {
+      // console.log('getGroupByTripId res: ', res)
+      return res;
+    })
+    .catch(err => {
+      console.error(err)
+    })
 }
 
 // models/accommodation.js -----START-----
@@ -93,16 +94,17 @@ const getUsersByAccommodationId = accommodationId => {
     'u.email',
     'u.username'
   )
-  .from('accommodations_users as au')
-  .leftJoin('users as u', 'au.user_id', 'u.id')
-  .where({ accommodation_id: accommodationId })
-  .then(res => {
-    // console.log('getGroupByTripId res: ', res)
-    return res; // array of accommodation object
-  })
-  .catch(err => {
-    console.error(err)
-  })
+
+    .from('accommodations_users as au')
+    .leftJoin('users as u', 'au.user_id', 'u.id')
+    .where({ accommodation_id: accommodationId })
+    .then(res => {
+      // console.log('getGroupByTripId res: ', res)
+      return res; // array of accommodation object
+    })
+    .catch(err => {
+      console.error(err)
+    })
 }
 
 // accommodations[n]accommodation prop
@@ -119,20 +121,21 @@ const getAccommodationsByTripId = tripId => {
     'a.departure',
     'a.phone'
   )
-  .from('accommodations as a')
-  .where({ trip_id: tripId })
-  .then(accommodations => {
-    // console.log('getaccommodationsByTripId res: ', accommodations)
+    .from('accommodations as a')
+    .where({ trip_id: tripId })
+    .then(accommodations => {
+      // console.log('getaccommodationsByTripId res: ', accommodations)
 
-    const promises = accommodations.map(async accom => {
-      return {
-        ...accom,
-        users: await getUsersByAccommodationId(accom.id)
-      }
+      const promises = accommodations.map(async accom => {
+        return {
+          ...accom,
+          users: await getUsersByAccommodationId(accom.id)
+        }
+      })
+
+      return Promise.all(promises);
     })
-
-    return Promise.all(promises);
-  })}
+}
 // models/accommodation.js ------END------
 
 
@@ -144,12 +147,13 @@ const getPlansByTripId = tripId => {
     'p.date',
     'p.link'
   )
-  .from('plans as p')
-  .where({ trip_id: tripId })
-  .then(res => {
-    // console.log('getPlansByTripId res: ', res)
-    return res;
-  })}
+    .from('plans as p')
+    .where({ trip_id: tripId })
+    .then(res => {
+      // console.log('getPlansByTripId res: ', res)
+      return res;
+    })
+}
 
 async function getBudgetAndTransactionsByTripId(tripId) {
   const trip = await getBudgetByTripId(tripId);
@@ -178,7 +182,7 @@ const getTransactionsByTripId = (tripId) => {
       't.trip_id as tripId',
       't.description',
       't.amount',
-    )
+  )
     .from('transactions as t')
     .where({ trip_id: tripId })
     .orderBy('id', 'desc')
@@ -199,15 +203,16 @@ const insertNewTrip = newTrip => {
 }
 const insertUserIntoTrip = (userId, newTripId) => {
 
-    return knex.insert({user_id : userId, trip_id: newTripId})
-      .into('users_trips')
-      .then(() => true)
-      .catch(e => {
-        console.error('insertFlight error: ', e)
-        return false })
+  return knex.insert({ user_id: userId, trip_id: newTripId })
+    .into('users_trips')
+    .then(() => true)
+    .catch(e => {
+      console.error('insertFlight error: ', e)
+      return false
+    })
 }
 
-router.post('/trips', async (req,res,next) => {
+router.post('/trips', async (req, res, next) => {
   const userId = getUserId(req);
   const { name, destination, description, arrival, departure } = req.body;
 
@@ -237,10 +242,10 @@ const findEmailInDB = email => {
     'u.email',
     'u.username'
   )
-  .from('users as u')
-  .where('email',email)
-  .returning('id')
-  .then(([id]) => (id));
+    .from('users as u')
+    .where('email', email)
+    .returning('id')
+    .then(([id]) => (id));
 }
 // const insertInviteUserIntoTrip = (id, tripId) => {
 
@@ -257,10 +262,10 @@ router.post('/trips/:id', (req, res, next) => {
   const tripId = id;
   const userId = findEmailInDB(email);
   const insertUser = insertUserIntoTrip(userId, tripId);
-  
+
   //insert into users into users_trips select will happen
- //
-  sgMail.setApiKey(SENDGRID_API_KEY)  
+  //
+  sgMail.setApiKey(SENDGRID_API_KEY)
   const unregisteredMsg = {
     to: email,
     from: 'tripWe@tripwe.com',
@@ -276,24 +281,24 @@ router.post('/trips/:id', (req, res, next) => {
     html: `<strong>TripWe Join Trip <a href="${API_BASE_URL}/trips/${id}"></strong>`,
   };
 
-  if (findEmailInDB){
+  if (findEmailInDB) {
     sgMail.send(msg);
     res.json(msg).status(201);
   } else {
     sgMail.send(unregisteredMsg);
     res.json(unregisteredMsg).status(201);
   };
-     // .then(result => {
-    //   console.log(result);
-    // })
-    // .catch(err => {
-    //   console.log('these are the errors',err.response.body.errors);
-    // })
+  // .then(result => {
+  //   console.log(result);
+  // })
+  // .catch(err => {
+  //   console.log('these are the errors',err.response.body.errors);
+  // })
 });
 //if theres a trip id be sure its included in req
 
 /*=========DELETE TRIP============ */
-router.delete('/trips/:id', (req, res, next)=> {
+router.delete('/trips/:id', (req, res, next) => {
   const userId = getUserId(req);
   const tripId = req.params.id;
   knex.select(
@@ -303,7 +308,7 @@ router.delete('/trips/:id', (req, res, next)=> {
     .andWhere('trips.user_id', userId)
     .from('trips')
     .then(res => {
-      if(res){
+      if (res) {
         res.status(204).end();
       } else {
         next();
