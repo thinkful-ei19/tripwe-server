@@ -6,9 +6,12 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
+const { getTotalBudgetByTripId } = require('../models/budget')
+const { editTrip, getUsersByAccommodationId } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
-const { API_BASE_URL } = require('../config');
+const fs = require('fs')
+const filename = 'invite-template.html'
 
 router.get('/trips/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -85,26 +88,7 @@ const getUsersByTripId = tripId => {
 
 // models/accommodation.js -----START-----
 // accommodations[n]users prop
-const getUsersByAccommodationId = accommodationId => {
 
-  return knex.select(
-    // users
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-    .from('accommodations_users as au')
-    .leftJoin('users as u', 'au.user_id', 'u.id')
-    .where({ accommodation_id: accommodationId })
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res; // array of accommodation object
-    })
-    .catch(err => {
-      console.error(err)
-    })
-}
 
 // accommodations[n]accommodation prop
 const getAccommodationsByTripId = tripId => {
@@ -155,9 +139,10 @@ const getPlansByTripId = tripId => {
 }
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  const trip = await getBudgetByTripId(tripId);
+  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
+  const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
-  return { ...trip, transactions };
+  return { total, transactions };
 }
 
 const getBudgetByTripId = (tripId) => {
@@ -168,6 +153,7 @@ const getBudgetByTripId = (tripId) => {
     )
     .from('budgets as b')
     .where({ trip_id: tripId })
+    .first()
     .catch(err => {
       console.error(`[getBudgetByTripId] Error: ${err}`)
       return null
@@ -209,6 +195,7 @@ const insertUserIntoTrip = (userId, newTripId) => {
       console.error('insertFlight error: ', e)
       return false
     })
+
 }
 
 router.post('/trips', async (req, res, next) => {
@@ -233,6 +220,27 @@ router.post('/trips', async (req, res, next) => {
   };
 })
 
+router.put('/trips/:id', (req, res, next) => {
+  const tripId = req.params.id;
+  const { name, destination, description, arrival, departure } = req.body;
+
+  const editedTrip = {
+    name,
+    destination,
+    description,
+    arrival,
+    departure,
+  }
+
+  const success = editTrip(tripId, editedTrip);
+
+  if (success) {
+    res.status(204).json();
+  } else {
+    res.status(500).json();
+  }
+})
+
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
   knex.select(
@@ -243,56 +251,48 @@ const findEmailInDB = email => {
   )
     .from('users as u')
     .where('email', email)
-    .returning('id')
-    .then(([id]) => (id));
+    .returning('u.id')
+    .then((id) => (id))
+
 }
-// const insertInviteUserIntoTrip = (id, tripId) => {
 
-//   return knex.insert({user_id : id, trip_id: tripId})
-//     .into('users_trips')
-//     .then(() => true)
-//     .catch(e => {
-//       console.error('insertFlight error: ', e)
-//       return false })
-// }
-router.post('/trips/:id', (req, res, next) => {
+
+router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
-  const { email } = req.body;
+  const { emails } = req.body;
+  //const emails = email;
   const tripId = id;
-  const userId = findEmailInDB(email);
-  const insertUser = insertUserIntoTrip(userId, tripId);
+  console.log(emails);
+  emails.forEach(email => {
+    const userId = findEmailInDB(email);
+    const insertUser = insertUserIntoTrip(userId, tripId);
+    sgMail.setApiKey(SENDGRID_API_KEY)
+    const unregisteredMsg = {
+      to: email,
+      from: 'tripWe@tripwe.com',
+      subject: 'Become a member!',
+      text: `Register at <a href="/users/?tripId=${id}">`,
+      html: '<strong>TripWe Registration Page</strong>',
+    };
+    const msg = {
+      to: email,
+      from: 'tripWe@tripwe.com',
+      subject: 'You are invited!',
+      text: `View the trip at  <a href="/trips/${id}">`,
+      html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
+    };
+    if (findEmailInDB) {
+      sgMail.send(msg);
+      res.json(msg).status(201);
+    } else {
+      sgMail.send(unregisteredMsg);
+      res.json(unregisteredMsg).status(201);
+    };
+  });
 
-  //insert into users into users_trips select will happen
-  //
-  sgMail.setApiKey(SENDGRID_API_KEY)
-  const unregisteredMsg = {
-    to: email,
-    from: 'tripWe@tripwe.com',
-    subject: 'Become a member!',
-    text: `Register at <a href="${API_BASE_URL}/users/?tripId=${id}">`,
-    html: '<strong>TripWe Registration Page</strong>',
-  };
-  const msg = {
-    to: email,
-    from: 'tripWe@tripwe.com',
-    subject: 'You are invited!',
-    text: `View the trip at  <a href="${API_BASE_URL}/trips/${id}">`,
-    html: `<strong>TripWe Join Trip <a href="${API_BASE_URL}/trips/${id}"></strong>`,
-  };
+  //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
 
-  if (findEmailInDB) {
-    sgMail.send(msg);
-    res.json(msg).status(201);
-  } else {
-    sgMail.send(unregisteredMsg);
-    res.json(unregisteredMsg).status(201);
-  };
-  // .then(result => {
-  //   console.log(result);
-  // })
-  // .catch(err => {
-  //   console.log('these are the errors',err.response.body.errors);
-  // })
+
 });
 //if theres a trip id be sure its included in req
 
@@ -300,11 +300,10 @@ router.post('/trips/:id', (req, res, next) => {
 router.delete('/trips/:id', (req, res, next) => {
   const userId = getUserId(req);
   const tripId = req.params.id;
-  knex.select(
-    //
-  )
+  knex.select('trips')
     .where('id', tripId)
     .andWhere('trips.user_id', userId)
+    .del()
     .from('trips')
     .then(res => {
       if (res) {
@@ -316,10 +315,7 @@ router.delete('/trips/:id', (req, res, next) => {
     .catch(next);
 })
 
-//we should cascade and then delete and reseed 
-
-
-
+//we should cascade and then delete and reseed
 
 module.exports = {
   tripsRouter: router,

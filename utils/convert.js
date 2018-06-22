@@ -26,7 +26,7 @@ const csvToJson = async (csvPath, jsonPath) => {
 };
 
 
-// create Hospital.json from Hospital.csv
+// create airportData.json from airportData.csv
 const csvPath = path.resolve(__dirname, '../data', 'airportData1.csv');
 const jsonFilePath = path.resolve(__dirname, '../data', 'airportData.json');
 csvToJson(csvPath, jsonFilePath);

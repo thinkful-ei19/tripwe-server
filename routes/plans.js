@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
+const { editPlanById, deletePlanById } = require('../models/plans');
 
 /* =====POST TO PLANS====== */
 
@@ -31,23 +32,35 @@ router.post('/trips/:id/plans', (req, res, next) => {
 
 });
 
-/* ==========DELETE PLAN =========== */
-router.delete('/trips/:id/plans/:id', (req, res, next)=> {
-    
-    const planId = req.params;
 
-    knex.del()
-        .where('id', planId)
-        .from('plans')
-        .then(res => {
-          if(res){
-            res.status(204).end();
-          } else {
-            next();
-          }
-        })
-          .catch(next);
+router.put('/plans/:id', (req, res, next) => {
+    const planId = req.params.id;
+    const { date, description, link } = req.body;
 
+    const updatedPlan = {
+      date,
+      description,
+      link
+    };
+
+    const success = editPlanById(planId, updatedPlan)
+
+    if (success) {
+        res.status(201).json();
+    } else {
+        res.status(500).json();
+    }
+});
+
+router.delete('/plans/:id', (req, res, next) => {
+    const planId = req.params.id;
+
+    const success = deletePlanById(planId);
+
+    if (success) {
+        res.status(204).json();
+    } else {
+        res.status(500).json();
+    }
 })
-//ammend sql 
 module.exports = router;
