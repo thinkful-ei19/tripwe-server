@@ -33,20 +33,21 @@ router.post('/trips/:id/plans', (req, res, next) => {
 
 /* ==========DELETE PLAN =========== */
 router.delete('/trips/:id/plans/:id', (req, res, next)=> {
-    
-    const planId = req.params;
-
-    knex.del()
-        .where('id', planId)
-        .from('plans')
-        .then(res => {
-          if(res){
-            res.status(204).end();
-          } else {
-            next();
-          }
-        })
-          .catch(next);
+  const { id }= req.params;
+  const planId = id;
+console.log(planId);
+  knex.select('plans')
+      .where('id', planId)
+      .del()
+      .from('plans')
+      .then(res => {
+        if(res){
+          res.status(204).end();
+        } else {
+          next();
+        }
+      })
+        .catch(next);
 
 })
 //ammend sql 
