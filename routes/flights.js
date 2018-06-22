@@ -18,12 +18,11 @@ const insertFlight = newFlight => {
 }
 
 const insertFlightInTrips = (tripId, userId, flightId) => {
-  return knex.insert({
-    trip_id: tripId,
-    user_id: userId,
-    flight_id: flightId
-  })
-  .into('users_trips')
+  return knex.raw(`
+    UPDATE USERS_TRIPS
+    SET FLIGHT_ID = ${flightId}
+    WHERE TRIP_ID = ${tripId}
+  `)
   .then(() => true)
   .catch(e => {
     console.error('insertFlight error: ', e)
@@ -32,7 +31,7 @@ const insertFlightInTrips = (tripId, userId, flightId) => {
 }
 
 router.post('/trips/:id/flights', async (req, res, next) => {
-  const userId = getUserId();
+  const userId = getUserId(req);
   const { id } = req.params;
 
   const {

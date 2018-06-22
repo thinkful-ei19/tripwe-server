@@ -6,9 +6,10 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
+const { getTotalBudgetByTripId } = require('../models/budget')
+const { editTrip } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
-
 
 router.get('/trips/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -156,9 +157,10 @@ const getPlansByTripId = tripId => {
 }
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  const trip = await getBudgetByTripId(tripId);
+  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
+  const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
-  return { ...trip, transactions };
+  return { total, transactions };
 }
 
 const getBudgetByTripId = (tripId) => {
@@ -169,6 +171,7 @@ const getBudgetByTripId = (tripId) => {
     )
     .from('budgets as b')
     .where({ trip_id: tripId })
+    .first()
     .catch(err => {
       console.error(`[getBudgetByTripId] Error: ${err}`)
       return null
@@ -234,6 +237,28 @@ router.post('/trips', async (req, res, next) => {
   };
 })
 
+router.put('/trips/:id', (req, res, next) => {
+  const tripId = req.params.id;
+  const { name, destination, description, arrival, departure } = req.body;
+
+  const editedTrip = {
+    name,
+    destination,
+    description,
+    arrival,
+    departure,
+  }
+
+  const success = editTrip(tripId, editedTrip);
+
+  if (success) {
+      res.status(204).json();
+  } else {
+      res.status(500).json();
+  }
+})
+
+=======
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
   knex.select(
@@ -317,9 +342,6 @@ router.delete('/trips/:id', (req, res, next) => {
 })
 
 //we should cascade and then delete and reseed 
-
-
-
 
 module.exports = {
   tripsRouter: router,
