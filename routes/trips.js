@@ -8,7 +8,7 @@ const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
-const { API_BASE_URL } = require('../config');
+
 
 router.get('/trips/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -270,15 +270,15 @@ router.post('/trips/:id', (req, res, next) => {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'Become a member!',
-    text: `Register at <a href="${API_BASE_URL}/users/?tripId=${id}">`,
+    text: `Register at <a href="/users/?tripId=${id}">`,
     html: '<strong>TripWe Registration Page</strong>',
   };
   const msg = {
     to: email,
     from: 'tripWe@tripwe.com',
     subject: 'You are invited!',
-    text: `View the trip at  <a href="${API_BASE_URL}/trips/${id}">`,
-    html: `<strong>TripWe Join Trip <a href="${API_BASE_URL}/trips/${id}"></strong>`,
+    text: `View the trip at  <a href="/trips/${id}">`,
+    html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
   };
 
   if (findEmailInDB) {
@@ -301,11 +301,10 @@ router.post('/trips/:id', (req, res, next) => {
 router.delete('/trips/:id', (req, res, next) => {
   const userId = getUserId(req);
   const tripId = req.params.id;
-  knex.select(
-    //
-  )
+  knex.select('trips')
     .where('id', tripId)
     .andWhere('trips.user_id', userId)
+    .del()
     .from('trips')
     .then(res => {
       if (res) {
