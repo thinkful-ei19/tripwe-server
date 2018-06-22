@@ -73,8 +73,9 @@ router.post('/trips/:id/flights', async (req, res, next) => {
   }
 })
 
-router.delete('/trips/:id/flights/id', (req,res,next)=> {
-  
+router.delete('/trips/:id/flights/:id', (req,res,next)=> {
+  const { id } = req.params;
+  console.log(id);
   // knex('flights').where({ id: flightId }).del()
   // .catch(err => console.error(`[deleteFlightById] Error: ${err}`))
 })

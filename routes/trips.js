@@ -94,6 +94,7 @@ const getUsersByAccommodationId = accommodationId => {
     'u.email',
     'u.username'
   )
+
     .from('accommodations_users as au')
     .leftJoin('users as u', 'au.user_id', 'u.id')
     .where({ accommodation_id: accommodationId })
