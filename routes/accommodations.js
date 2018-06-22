@@ -6,8 +6,16 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 
+const response = id => {
+    return knex('accommodations')
+        .select()
+        .where({ id: id })
+}
+
+
+
 const insertNewAccommodation = NewAccommodation => {
-    console.log(NewAccommodation, 'insert info');
+    //console.log(NewAccommodation, 'insert info');
     return knex.insert(NewAccommodation)
         .into('accommodations')
         .returning('id')
@@ -48,11 +56,12 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
     };
     //console.log(newAccommodation, 'newAccommodation')
     const NewAccommodationId = await insertNewAccommodation(newAccommodation);
-    console.log(NewAccommodationId, 'NewAccommodationId')
+    //console.log(NewAccommodationId, 'NewAccommodationId')
     const success = await insertUserIntoAccommodation(userId, id, NewAccommodationId)
-
+    const result = await response(NewAccommodationId)
+    console.log(result, 'accommodationres')
     if (success) {
-        res.status(201).json();
+        res.status(201).json(result);
     } else {
         res.status(500).json();
     }
