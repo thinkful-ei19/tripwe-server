@@ -260,7 +260,7 @@ router.put('/trips/:id', (req, res, next) => {
   }
 })
 
-=======
+
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
   knex.select(
