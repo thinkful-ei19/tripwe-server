@@ -32,6 +32,7 @@ router.post('/trips/:id/plans', (req, res, next) => {
 
 });
 
+
 router.put('/plans/:id', (req, res, next) => {
     const planId = req.params.id;
     const { date, description, link } = req.body;
