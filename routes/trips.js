@@ -211,10 +211,11 @@ const insertUserIntoTrip = (userId, newTripId) => {
   return knex.insert({ user_id: userId, trip_id: newTripId })
     .into('users_trips')
     .then(() => true)
-    .catch(e => {
+    .catch(e => { 
       console.error('insertFlight error: ', e)
       return false
     })
+       
 }
 
 router.post('/trips', async (req, res, next) => {
@@ -270,20 +271,22 @@ const findEmailInDB = email => {
   )
     .from('users as u')
     .where('email', email)
-    .returning('id')
-    .then(([id]) => (id));
+    .returning('u.id')
+    .then((id) => (id))
+    
 }
+
 
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
-  const { email } = req.body;
+  const { emails } = req.body;
+  //const emails = email;
   const tripId = id;
-  const userId = findEmailInDB(email);
-  const insertUser = insertUserIntoTrip(userId, tripId);
-
-  //insert into users into users_trips select will happen
-  //
-  sgMail.setApiKey(SENDGRID_API_KEY)
+  console.log(emails);
+  emails.forEach(email => {
+    const userId = findEmailInDB(email);
+    const insertUser = insertUserIntoTrip(userId, tripId);
+    sgMail.setApiKey(SENDGRID_API_KEY)
   const unregisteredMsg = {
     to: email,
     from: 'tripWe@tripwe.com',
@@ -298,14 +301,17 @@ router.post('/trips/:id/group', (req, res, next) => {
     text: `View the trip at  <a href="/trips/${id}">`,
     html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
   };
+    if (findEmailInDB) {
+      sgMail.send(msg);
+      res.json(msg).status(201);
+    } else {
+      sgMail.send(unregisteredMsg);
+      res.json(unregisteredMsg).status(201);
+    };
+  });
+  
   //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
-  if (findEmailInDB) {
-    sgMail.send(msg);
-    res.json(msg).status(201);
-  } else {
-    sgMail.send(unregisteredMsg);
-    res.json(unregisteredMsg).status(201);
-  };
+  
 
 });
 //if theres a trip id be sure its included in req
