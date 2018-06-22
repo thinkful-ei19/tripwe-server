@@ -1,12 +1,14 @@
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS trips;
 DROP TABLE IF EXISTS accommodations;
 DROP TABLE IF EXISTS flights;
 DROP TABLE IF EXISTS budgets;
+DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS plans;
 DROP TABLE IF EXISTS users_trips;
 DROP TABLE IF EXISTS users_flights;
 DROP TABLE IF EXISTS accommodations_users;
+DROP TABLE IF EXISTS trips;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE airports (
   id serial PRIMARY KEY,
   AirportName text,
@@ -74,10 +76,11 @@ CREATE TABLE plans (
     description text NOT NULL,
     link text
 );
+
 CREATE TABLE budgets (
     id serial PRIMARY KEY,
     trip_id int REFERENCES trips UNIQUE,
-    available int
+    available int NOT NULL DEFAULT 0
 );
 
 CREATE TABLE transactions (
@@ -101,6 +104,7 @@ CREATE TABLE users_flights (
 );
 CREATE TABLE accommodations_users (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    trip_id int REFERENCES trips (id) ON UPDATE CASCADE ON DELETE CASCADE,
     accommodation_id int REFERENCES accommodations (id) ON UPDATE CASCADE,
-    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, accommodation_id)
+    CONSTRAINT accommodations_users_pkey PRIMARY KEY (user_id, trip_id, accommodation_id)
 );
