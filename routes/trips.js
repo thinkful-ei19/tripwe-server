@@ -258,7 +258,6 @@ router.put('/trips/:id', (req, res, next) => {
   }
 })
 
-=======
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
   knex.select(
@@ -341,7 +340,7 @@ router.delete('/trips/:id', (req, res, next) => {
     .catch(next);
 })
 
-//we should cascade and then delete and reseed 
+//we should cascade and then delete and reseed
 
 module.exports = {
   tripsRouter: router,
