@@ -71,5 +71,89 @@ router.post('/trips/:id/flights', async (req, res, next) => {
     res.status(500).json();
   }
 })
+// router.put('/trips/:id/flights/:id', (req, res, next)=> {
+//   const userId = getUserId();
+//   const flightId = req.params.id;
+//   const {
+//     incomingDepartureTime,
+//     incomingArrivalTime,
+//     incomingDepartureAirport,
+//     incomingArrivalAirport,
+//     incomingFlightNum,
+//     outgoingDepartureTime,
+//     outgoingArrivalTime,
+//     outgoingDepartureAirport,
+//     outgoingArrivalAirport,
+//     outgoingFlightNum
+//   } = req.body;
+//   const updateFlight = {
+//     user_id: userId,
+//     trip_id: id,
+//     incomingdeparturetime: incomingDepartureTime,
+//     incomingarrivaltime: incomingArrivalTime,
+//     incomingdepartureairport: incomingDepartureAirport,
+//     incomingarrivalairport: incomingArrivalAirport,
+//     incomingflightnum: incomingFlightNum,
+//     outgoingdeparturetime: outgoingDepartureTime,
+//     outgoingarrivaltime: outgoingArrivalTime,
+//     outgoingdepartureairport: outgoingDepartureAirport,
+//     outgoingarrivalairport: outgoingArrivalAirport,
+//     outgoingflightnum: outgoingFlightNum
+//   }
+//   knex.select('flight.id')
+//     .from('flights')
+//     .where('flight.id', flightId)
+//     .andWhere('flight.user_id', userId)
+//     .then(result => {
+//       if(result && result.length > 0){
+//         knex('flights')
+//         .update(updateFlight)
+//         .where('id', flightId)
+//         .then(() => {
+//         return knex.select(
+//           'f.id', 
+//           'f.user_id',
+//           'f.trip_id', 
+//           'f.incomingdeparturetime', 
+//           'f.incomingarrivaltime', 
+//           'f.incomingdepartureairport', 
+//           'f.incomingarrivalairport', 
+//           'f.incomingflightnum', 
+//           'f.outgoingdeparturetime', 
+//           'f.outgoingarrivaltime',
+//           'f.outgoingdepartureairport',
+//           'f.outgoingarrivalairport',
+//           'f.outgoingflightnum')
+//           .from('flights')
+//           .leftJoin('users', 'flight.user_id', 'users.id')
+//           .where('accommodation.id', accommodationId)
+//           .andWhere('accommodation.user_id', userId)
+//           .first()
+//           .then(result => {
+//             if (result) {
+//               es.json(result);
+//             }
+//           });
+//         });
+//         } else {
+//           next();
+//         }
+//               })
+//               .catch(err => {
+//                 next(err);
+//               });
+//       });
+// });
+router.delete('/trips/:id/flights/:id', (req,res,next)=> {
+  const { id } = req.params;
+  const flightId = id;
+  console.log(flightId);
+  knex.select('flights')
+    .where({ id: flightId })
+    .del()
+    .catch(err => 
+      console.error(`[deleteFlightById] Error: ${err}`)
+    );
+})
 
 module.exports = router;

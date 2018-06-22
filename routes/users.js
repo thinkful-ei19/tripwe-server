@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
+const {insertUserIntoTrip} = require('./trips');
 //const User = require('../models/user');
 
 const router = express.Router();
@@ -103,12 +104,17 @@ router.post('/users', (req, res, next) => {
         .first();
     })
     .then (user => {
+      const tripId = req.query.tripId;
+      if(tripId){
+        insertUserIntoTrip(userId, tripId)
+        return res.location(`/trips`).status(201).json(user);
+      }
       if (user) {
         res.location(`${req.originalUrl}/${userId}`).status(201).json(user);
       } else {
         next();
       }
-    })
+    })  
     .catch (err => {
       // console.log(err);
       if (err.code === '23505') {
@@ -118,6 +124,7 @@ router.post('/users', (req, res, next) => {
       next(err);
     });
 });
+//after registration c
 router.get('/users/trips', (req, res, next) => {
 
   const userId = getUserId(req);
@@ -134,4 +141,5 @@ router.get('/users/trips', (req, res, next) => {
       next(err);
     });
 });
+
 module.exports = router;
