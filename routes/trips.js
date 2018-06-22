@@ -10,6 +10,8 @@ const { getTotalBudgetByTripId } = require('../models/budget')
 const { editTrip } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
+const fs = require('fs')
+const filename =  'invite-template.html'
 
 router.get('/trips/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -272,16 +274,8 @@ const findEmailInDB = email => {
     .returning('id')
     .then(([id]) => (id));
 }
-// const insertInviteUserIntoTrip = (id, tripId) => {
 
-//   return knex.insert({user_id : id, trip_id: tripId})
-//     .into('users_trips')
-//     .then(() => true)
-//     .catch(e => {
-//       console.error('insertFlight error: ', e)
-//       return false })
-// }
-router.post('/trips/:id', (req, res, next) => {
+router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { email } = req.body;
   const tripId = id;
@@ -305,7 +299,7 @@ router.post('/trips/:id', (req, res, next) => {
     text: `View the trip at  <a href="/trips/${id}">`,
     html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
   };
-
+  //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
   if (findEmailInDB) {
     sgMail.send(msg);
     res.json(msg).status(201);
@@ -313,12 +307,7 @@ router.post('/trips/:id', (req, res, next) => {
     sgMail.send(unregisteredMsg);
     res.json(unregisteredMsg).status(201);
   };
-  // .then(result => {
-  //   console.log(result);
-  // })
-  // .catch(err => {
-  //   console.log('these are the errors',err.response.body.errors);
-  // })
+
 });
 //if theres a trip id be sure its included in req
 
