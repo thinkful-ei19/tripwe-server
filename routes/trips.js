@@ -101,7 +101,7 @@ const getUsersByAccommodationId = accommodationId => {
     return res; // array of accommodation object
   })
   .catch(err => {
-    console.err(e)
+    console.error(err)
   })
 }
 
