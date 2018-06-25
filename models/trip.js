@@ -27,6 +27,7 @@ function deleteTripById(tripId) {
           console.error(`[deleteTripById] Error: ${err}`)
       })
 }
+
 module.exports = {
   editTrip,
   insertNewTrip,

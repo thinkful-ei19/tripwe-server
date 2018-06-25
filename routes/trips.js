@@ -236,7 +236,7 @@ router.put('/trips/:id', (req, res, next) => {
   const success = editTrip(tripId, editedTrip);
 
   if (success) {
-      res.status(204).json();
+      res.status(201).json(editedTrip);
   } else {
       res.status(500).json();
   }
@@ -245,8 +245,9 @@ router.put('/trips/:id', (req, res, next) => {
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
   knex('users')
-    .select('id')
-    .where({email: email})
+    .select()
+    .where({email})
+    .catch(err => { console.log(err, 'findemail error'); });
 }
 
 router.post('/trips/:id/group', (req, res, next) => {
@@ -254,8 +255,14 @@ router.post('/trips/:id/group', (req, res, next) => {
   const { emails } = req.body;
   const tripId = id;
   console.log(emails);
-  
+  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err,data) {
+    if (err) {
+      return console.log(err);
+    }
+    res.json(data).status(201);
+   });
   emails.forEach(email => {
+    console.log(email, 'email being passed');
     const userId = findEmailInDB(email);
     console.log(userId);
     const insertUser = insertUserIntoTrip(userId, tripId);
@@ -275,15 +282,14 @@ router.post('/trips/:id/group', (req, res, next) => {
     html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
   };
     if (findEmailInDB) {
-      sgMail.send(msg);
-      res.json(msg).status(201);
+      sgMail.send(template);
     } else {
       sgMail.send(unregisteredMsg);
       res.json(unregisteredMsg).status(201);
     };
   });
   
-  //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
+  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
   
 
 });
