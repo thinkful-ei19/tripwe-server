@@ -38,24 +38,21 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
 
     if (success) {
         res.status(201).json({ result, userResult });
-
     } else {
         res.status(500).json();
     }
 });
-
+/* ===== ADD USERS TO ACCOMMODATIONS ====== */
 router.put('/trips/:tripId/accommodations/:accId', async (req, res, next) => {
     const { tripId, accId } = req.params;
 
     const { userId } = req.body;
-    console.log(userId, accId, tripId)
     const success = await insertUserIntoAccommodation(userId, accId, tripId);
-    const result = await getUsersByAccommodationId(accId);
+    const result = await response(accId);
     const userResult = await getUsersByAccommodationId(accId);
 
     if (success) {
         res.status(201).json({ result, userResult });
-
     } else {
         res.status(500).json();
     }
