@@ -7,11 +7,11 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
-const fs = require('fs')
-const filename =  'invite-template.html'
+const fs = require('fs');
+const filename = 'invite-template.html';
 
 router.get('/trips/:id', async (req, res, next) => {
   const { id } = req.params;
@@ -199,25 +199,6 @@ const getTransactionsByTripId = (tripId) => {
 
 /*========POST TRIP========== */
 
-const insertNewTrip = newTrip => {
-
-  return knex.insert(newTrip)
-    .into('trips')
-    .returning('id')
-    .then(([id]) => id);
-}
-const insertUserIntoTrip = (userId, newTripId) => {
-
-  return knex.insert({ user_id: userId, trip_id: newTripId })
-    .into('users_trips')
-    .then(() => true)
-    .catch(e => { 
-      console.error('insertFlight error: ', e)
-      return false
-    })
-       
-}
-
 router.post('/trips', async (req, res, next) => {
   const userId = getUserId(req);
   const { name, destination, description, arrival, departure } = req.body;
@@ -239,7 +220,7 @@ router.post('/trips', async (req, res, next) => {
     res.status(500).json();
   };
 })
-
+/* ==== PUT/UPDATE TRIP ==== */
 router.put('/trips/:id', (req, res, next) => {
   const tripId = req.params.id;
   const { name, destination, description, arrival, departure } = req.body;
@@ -263,28 +244,20 @@ router.put('/trips/:id', (req, res, next) => {
 
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
-  knex.select(
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-    .from('users as u')
-    .where('email', email)
-    .returning('u.id')
-    .then((id) => (id))
-    
+  knex('users')
+    .select('id')
+    .where({email: email})
 }
-
 
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
-  //const emails = email;
   const tripId = id;
   console.log(emails);
+  
   emails.forEach(email => {
     const userId = findEmailInDB(email);
+    console.log(userId);
     const insertUser = insertUserIntoTrip(userId, tripId);
     sgMail.setApiKey(SENDGRID_API_KEY)
   const unregisteredMsg = {
@@ -318,21 +291,15 @@ router.post('/trips/:id/group', (req, res, next) => {
 
 /*=========DELETE TRIP============ */
 router.delete('/trips/:id', (req, res, next) => {
-  const userId = getUserId(req);
   const tripId = req.params.id;
-  knex.select('trips')
-    .where('id', tripId)
-    .andWhere('trips.user_id', userId)
-    .del()
-    .from('trips')
-    .then(res => {
-      if (res) {
-        res.status(204).end();
-      } else {
-        next();
-      }
-    })
-    .catch(next);
+  
+  const success = deleteTripById(tripId);
+
+  if (success) {
+    res.status(204).json();
+  } else {
+    res.status(500).json();
+  }
 })
 
 //we should cascade and then delete and reseed
