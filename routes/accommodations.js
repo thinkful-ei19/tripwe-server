@@ -9,15 +9,11 @@ const {
     editAccomodationById,
     deleteAccomodationById,
     insertNewAccommodation,
-    insertUserIntoAccommodation
+    insertUserIntoAccommodation,
+    response
 } = require('../models/accommodation');
 const { getUsersByAccommodationId } = require('../models/trip');
 
-const response = id => {
-    return knex('accommodations')
-        .select()
-        .where({ id: id })
-}
 router.post('/trips/:id/accommodations', async (req, res, next) => {
     const userId = getUserId(req);
     //getUserId(req);
@@ -39,7 +35,24 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
     const result = await response(NewAccommodationId);
     const success = await insertUserIntoAccommodation(userId, NewAccommodationId, id);
     const userResult = await getUsersByAccommodationId(NewAccommodationId);
-    console.log(userResult, 'userREsult')
+
+    if (success) {
+        res.status(201).json({ result, userResult });
+
+    } else {
+        res.status(500).json();
+    }
+});
+
+router.put('/trips/:tripId/accommodations/:accId', async (req, res, next) => {
+    const { tripId, accId } = req.params;
+
+    const { userID } = req.body;
+
+    const success = await insertUserIntoAccommodation(userId, accId, tripId);
+    const result = await getUsersByAccommodationId(accId);
+    const userResult = await getUsersByAccommodationId(accId);
+
     if (success) {
         res.status(201).json({ result, userResult });
 
@@ -71,9 +84,8 @@ router.put('/accommodations/:id', (req, res, next) => {
 
 router.delete('/accommodations/:id', (req, res, next) => {
     const accommodationId = req.params.id;
-
+    console.log(accommodationId, "ID")
     const success = deleteAccomodationById(accommodationId);
-    console.log(success)
 
     if (success) {
         res.status(204).json();

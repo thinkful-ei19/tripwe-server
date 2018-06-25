@@ -43,7 +43,6 @@ const getTripInfoById = id => {
     .where({ id })
     .first()
     .then(res => {
-      console.log('getTripsById res:', res)
       return res;
     })
 }
@@ -243,59 +242,58 @@ router.put('/trips/:id', (req, res, next) => {
 
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
-  knex.select(
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-    .from('users as u')
-    .where('email', email)
-    .returning('u.id')
-    .then((id) => (id))
-
+  knex('users')
+    .select('id')
+    .where({email})
+    .then(([id]) => {
+      console.log(id.id, "FINDEMAIWORKING")
+      return id
+    })
+    .catch(err => { console.log(err, 'findemail error'); });
 }
-
 
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
-  //const emails = email;
   const tripId = id;
-  console.log(emails);
-  emails.forEach(email => {
-    const userId = findEmailInDB(email);
-    const insertUser = insertUserIntoTrip(userId, tripId);
+
+  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err,data) {
+    if (err) {
+      return console.log(err);
+    }
+    res.json(data).status(201);
+   });
+
+  emails.forEach(async (email) => {
+    const userId = await findEmailInDB(email);
+    const insertUser = await insertUserIntoTrip(userId, tripId);
     sgMail.setApiKey(SENDGRID_API_KEY)
-    const unregisteredMsg = {
-      to: email,
-      from: 'tripWe@tripwe.com',
-      subject: 'Become a member!',
-      text: `Register at <a href="/users/?tripId=${id}">`,
-      html: '<strong>TripWe Registration Page</strong>',
-    };
-    const msg = {
-      to: email,
-      from: 'tripWe@tripwe.com',
-      subject: 'You are invited!',
-      text: `View the trip at  <a href="/trips/${id}">`,
-      html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
-    };
+  const unregisteredMsg = {
+    to: email,
+    from: 'tripWe@tripwe.com',
+    subject: 'Become a member!',
+    text: `Register at <a href="/users/?tripId=${id}">`,
+    html: '<strong>TripWe Registration Page</strong>',
+  };
+  const msg = {
+    to: email,
+    from: 'tripWe@tripwe.com',
+    subject: 'You are invited!',
+    text: `View the trip at  <a href="/trips/${id}">`,
+    html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
+  };
     if (findEmailInDB) {
-      sgMail.send(msg);
-      res.json(msg).status(201);
+      sgMail.send(template);
     } else {
       sgMail.send(unregisteredMsg);
       res.json(unregisteredMsg).status(201);
     };
   });
 
-  //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
+  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
 
 
 });
-//if theres a trip id be sure its included in req
-
 /*=========DELETE TRIP============ */
 router.delete('/trips/:id', (req, res, next) => {
   const userId = getUserId(req);

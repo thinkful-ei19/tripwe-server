@@ -8,7 +8,6 @@ function editTrip(tripId, editedTrip) {
 function getUsersByAccommodationId(accommodationId) {
 
   return knex.select(
-    // users
     'u.id',
     'u.fullname',
     'u.email',
