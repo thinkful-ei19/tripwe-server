@@ -47,8 +47,8 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
 router.put('/trips/:tripId/accommodations/:accId', async (req, res, next) => {
     const { tripId, accId } = req.params;
 
-    const { userID } = req.body;
-
+    const { userId } = req.body;
+    console.log(userId, accId, tripId)
     const success = await insertUserIntoAccommodation(userId, accId, tripId);
     const result = await getUsersByAccommodationId(accId);
     const userResult = await getUsersByAccommodationId(accId);

@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -138,7 +138,6 @@ const getPlansByTripId = tripId => {
 }
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
   const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
   return { total, transactions };
@@ -194,7 +193,7 @@ router.post('/trips', async (req, res, next) => {
   const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
 
   if (insertUsersSuccess) {
-    res.status(201).json();
+    res.status(201).json(newTripId);
   } else {
     res.status(500).json();
   };
