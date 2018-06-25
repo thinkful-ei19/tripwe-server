@@ -11,7 +11,7 @@ const {
         insertNewAccommodation,
         insertUserIntoAccommodation
       } = require('../models/accommodation');
-
+/*======== POST NEW ACCOMMODATION ======= */
 router.post('/trips/:id/accommodations', async (req, res, next) => {
     const userId = getUserId(req);
     //getUserId(req);
@@ -39,7 +39,7 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
         res.status(500).json();
     }
 });
-
+/* ===== PUT/UPDATE ACCOMMODATIONS ====== */
 router.put('/accommodations/:id', (req, res, next) => {
     const accommodationId = req.params.id;
     const { name, address, reference, arrival, departure, phone } = req.body;
@@ -60,7 +60,7 @@ router.put('/accommodations/:id', (req, res, next) => {
         res.status(500).json();
     }
 });
-
+/* ======== DELETE ACCOMMODATION ======== */
 router.delete('/accommodations/:id', (req, res, next) => {
     const accommodationId = req.params.id;
 

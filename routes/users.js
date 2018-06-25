@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
-const {insertUserIntoTrip} = require('./trips');
+const {insertUserIntoTrip} = require('../models/trip');
 //const User = require('../models/user');
 
 const router = express.Router();
