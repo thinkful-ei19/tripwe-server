@@ -42,21 +42,19 @@ const getTripInfoById = id => {
     .from('trips as t')
     .where({ id })
     .first()
-    .then(res => {
-      return res;
-    })
 }
 
 const getUsersByTripId = tripId => {
 
-  return knex.select(
+  return knex
+  .select(
     // users
-    'u.id',
+    'u.id as userId',
     'u.fullname',
     'u.email',
     'u.username',
     // Flights
-    'f.id',
+    'f.id as flightId',
     'f.trip_id',
     'f.user_id',
     'f.incomingdeparturetime',
@@ -72,14 +70,10 @@ const getUsersByTripId = tripId => {
     // status
     'ut.status'
   )
-    .from('users_trips as ut')
-    .leftJoin('users as u', 'ut.user_id', 'u.id')
+    .from('users as u')
+    .leftJoin('users_trips as ut', 'ut.user_id', 'u.id')
     .leftJoin('flights as f', 'ut.flight_id', 'f.id')
     .where('ut.trip_id', tripId)
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res;
-    })
     .catch(err => {
       console.error(err)
     })

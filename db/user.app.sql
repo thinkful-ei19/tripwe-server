@@ -52,7 +52,7 @@ CREATE TABLE accommodations (
     reference text,
     arrival date,
     departure date,
-    phone int
+    phone text
 );
 CREATE TABLE flights (
     id serial PRIMARY KEY,
@@ -62,12 +62,12 @@ CREATE TABLE flights (
     incomingArrivalTime DATE,
     incomingDepartureAirport text,
     incomingArrivalAirport text,
-    incomingFlightNum int,
+    incomingFlightNum text,
     outgoingDepartureTime DATE,
     outgoingArrivalTime DATE,
     outgoingDepartureAirport text,
     outgoingArrivalAirport text,
-    outgoingFlightNum int
+    outgoingFlightNum text
 );
 CREATE TABLE plans (
     id serial PRIMARY KEY,

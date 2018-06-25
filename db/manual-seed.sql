@@ -125,13 +125,13 @@ INSERT into trips (user_id, name, destination, description, arrival, departure) 
 
 
 INSERT into accommodations (trip_id, name, reference, arrival, departure, phone, address)VALUES
-(15, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 1285345, '27 Cranbrook Road');
+(1, 'Sofitel LA', 'ABC123', TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 1285345, '27 Cranbrook Road');
 
 INSERT into flights ( trip_id, user_id, IncomingDepartureTime, IncomingArrivalTime, IncomingDepartureAirport, IncomingArrivalAirport, IncomingFlightNum, OutgoingDepartureTime, OutgoingArrivalTime, OutgoingDepartureAirport, OutgoingArrivalAirport, OutgoingFlightNum) VALUES
-( 30, 26, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
+( 1, 1, TO_DATE('30/09/2018','DD/MM/YYYY'), TO_DATE('30/09/2018','DD/MM/YYYY'), 'FJK', 'GTW', 1234, TO_DATE('30/10/2018','DD/MM/YYYY'), TO_DATE('30/10/2018','DD/MM/YYYY'), 'GTW', 'FJK', 4321);
 
 INSERT into plans (trip_id, date, description, link) VALUES
-(26, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose', 'https://www.tripadvisor.co.uk/Attraction_Review-g32655-d110202-Reviews-Melrose_Avenue-Los_Angeles_California.html');
+(1, TO_DATE('02/10/2018','DD/MM/YYYY'), 'walking down melrose', 'https://www.tripadvisor.co.uk/Attraction_Review-g32655-d110202-Reviews-Melrose_Avenue-Los_Angeles_California.html');
 
 INSERT into budgets (trip_id) VALUES
 (7);
@@ -154,8 +154,8 @@ INSERT into plans (trip_id, date, description) VALUES
 INSERT into budgets (trip_id, totalBudget, currentSpending) VALUES
 (1, 5000, 2000);
 
-INSERT into users_trips (user_id, trip_id, status, flight_id) VALUES
-(4, 26, 0);
+INSERT into users_trips (user_id, trip_id) VALUES
+(3, 1);
 
 INSERT into users_flights (user_id, flight_id) VALUES
 (34, 20);
