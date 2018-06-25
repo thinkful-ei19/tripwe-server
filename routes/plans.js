@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
-const { editPlanById, deletePlanById } = require('../models/plans');
+const { editPlanById, deletePlanById, insertPlan } = require('../models/plans');
 
 /* =====POST TO PLANS====== */
 
@@ -12,27 +12,21 @@ router.post('/trips/:id/plans', (req, res, next) => {
   const { id } = req.params;
   const userId = getUserId(req);
   const { date, description, link } = req.body;
-  const newPlans = {
+  const newPlan = {
     trip_id: id,
     date,
     description,
     link
   };
-  knex
-    .insert(newPlans)
-    .into('plans')
-    .returning('id')
-    .then(([id]) => id)
-    .then(result => {
-      res.json(result);
-    })
-    .catch(err => {
-      next(err);
-    });
-
+  const success = insertPlan(newPlan);
+  if(success){
+      res.status(201).json();
+  }else {
+      res.status(500).json();
+  }
 });
 
-
+/* ==== PUT/UPDATE PLANS BY ID ==== */
 router.put('/plans/:id', (req, res, next) => {
     const planId = req.params.id;
     const { date, description, link } = req.body;
@@ -51,7 +45,7 @@ router.put('/plans/:id', (req, res, next) => {
         res.status(500).json();
     }
 });
-
+/* ===== DELETE PLANS BY ID ===== */
 router.delete('/plans/:id', (req, res, next) => {
     const planId = req.params.id;
 

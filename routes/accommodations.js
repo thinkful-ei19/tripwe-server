@@ -8,34 +8,10 @@ const util = require('util');
 const {
   editAccomodationById,
   deleteAccomodationById,
-  // insertNewAccommodation,
-  // insertUserIntoAccommodation
+  insertNewAccommodation,
+  insertUserIntoAccommodation
 } = require('../models/accommodation');
-
-const insertNewAccommodation = NewAccommodation => {
-  console.log(NewAccommodation, 'insert info');
-  return knex.insert(NewAccommodation)
-    .into('accommodations')
-    .returning('id')
-    .then(([id]) => id)
-    .catch(e => {
-      console.log('insertNewAccommodation:', e)
-    })
-}
-const insertUserIntoAccommodation = (userId, id, accommodationId) => {
-  // console.log(userId);
-  // console.log(accommodationId);
-  return knex.insert({
-    user_id: userId,
-    trip_id: id,
-    accommodation_id: accommodationId,
-  }).into("accommodations_users")
-    .then(() => true)
-    .catch(e => {
-      console.error('insertUserNewAccomodation error: ', e)
-      return false
-    })
-}
+/*======== POST NEW ACCOMMODATION ======= */
 router.post('/trips/:id/accommodations', async (req, res, next) => {
   const userId = getUserId(req);
   //getUserId(req);
@@ -63,7 +39,7 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
     res.status(500).json();
   }
 });
-
+/* ===== PUT/UPDATE ACCOMMODATIONS ====== */
 router.put('/accommodations/:id', (req, res, next) => {
   const accommodationId = req.params.id;
   const { name, address, reference, arrival, departure, phone } = req.body;
@@ -84,7 +60,7 @@ router.put('/accommodations/:id', (req, res, next) => {
     res.status(500).json();
   }
 });
-
+/* ======== DELETE ACCOMMODATION ======== */
 router.delete('/accommodations/:id', (req, res, next) => {
   const accommodationId = req.params.id;
 
