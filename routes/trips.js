@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -43,7 +43,6 @@ const getTripInfoById = id => {
     .where({ id })
     .first()
     .then(res => {
-      console.log('getTripsById res:', res)
       return res;
     })
 }
@@ -88,26 +87,7 @@ const getUsersByTripId = tripId => {
 
 // models/accommodation.js -----START-----
 // accommodations[n]users prop
-const getUsersByAccommodationId = accommodationId => {
 
-  return knex.select(
-    // users
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-    .from('accommodations_users as au')
-    .leftJoin('users as u', 'au.user_id', 'u.id')
-    .where({ accommodation_id: accommodationId })
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res; // array of accommodation object
-    })
-    .catch(err => {
-      console.error(err)
-    })
-}
 
 // accommodations[n]accommodation prop
 const getAccommodationsByTripId = tripId => {
@@ -158,7 +138,6 @@ const getPlansByTripId = tripId => {
 }
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
   const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
   return { total, transactions };
@@ -247,12 +226,10 @@ const findEmailInDB = email => {
     .select('id')
     .where({ email })
     .then(([id]) => {
-      console.log(id, "FINDEMAILWORKING")
       return id.id
     })
     .catch(err => { console.log(err, 'findemail error'); });
 }
-
 
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
@@ -300,9 +277,10 @@ router.post('/trips/:id/group', (req, res, next) => {
   //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
 
 
-});
-//if theres a trip id be sure its included in req
+  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
 
+
+});
 /*=========DELETE TRIP============ */
 router.delete('/trips/:id', (req, res, next) => {
   const tripId = req.params.id;

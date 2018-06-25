@@ -9,9 +9,11 @@ const {
   editAccomodationById,
   deleteAccomodationById,
   insertNewAccommodation,
-  insertUserIntoAccommodation
+  insertUserIntoAccommodation,
+  response
 } = require('../models/accommodation');
-/*======== POST NEW ACCOMMODATION ======= */
+const { getUsersByAccommodationId } = require('../models/trip');
+
 router.post('/trips/:id/accommodations', async (req, res, next) => {
   const userId = getUserId(req);
   //getUserId(req);
@@ -30,11 +32,27 @@ router.post('/trips/:id/accommodations', async (req, res, next) => {
   };
 
   const NewAccommodationId = await insertNewAccommodation(newAccommodation);
-
-  const success = await insertUserIntoAccommodation(userId, NewAccommodationId, id)
+  const result = await response(NewAccommodationId);
+  const success = await insertUserIntoAccommodation(userId, NewAccommodationId, id);
+  const userResult = await getUsersByAccommodationId(NewAccommodationId);
 
   if (success) {
-    res.status(201).json();
+    res.status(201).json({ result, userResult });
+  } else {
+    res.status(500).json();
+  }
+});
+/* ===== ADD USERS TO ACCOMMODATIONS ====== */
+router.put('/trips/:tripId/accommodations/:accId', async (req, res, next) => {
+  const { tripId, accId } = req.params;
+
+  const { userId } = req.body;
+  const success = await insertUserIntoAccommodation(userId, accId, tripId);
+  const result = await response(accId);
+  const userResult = await getUsersByAccommodationId(accId);
+
+  if (success) {
+    res.status(201).json({ result, userResult });
   } else {
     res.status(500).json();
   }
@@ -55,7 +73,7 @@ router.put('/accommodations/:id', (req, res, next) => {
 
   const success = editAccomodationById(accommodationId, updatedAccommodation)
   if (success) {
-    res.status(201).json();
+    res.status(201).json(result);
   } else {
     res.status(500).json();
   }
@@ -63,9 +81,8 @@ router.put('/accommodations/:id', (req, res, next) => {
 /* ======== DELETE ACCOMMODATION ======== */
 router.delete('/accommodations/:id', (req, res, next) => {
   const accommodationId = req.params.id;
-
+  console.log(accommodationId, "ID")
   const success = deleteAccomodationById(accommodationId);
-  console.log(success)
 
   if (success) {
     res.status(204).json();
