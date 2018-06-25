@@ -236,7 +236,7 @@ router.put('/trips/:id', (req, res, next) => {
   const success = editTrip(tripId, editedTrip);
 
   if (success) {
-      res.status(204).json();
+      res.status(201).json(editedTrip);
   } else {
       res.status(500).json();
   }
@@ -244,37 +244,52 @@ router.put('/trips/:id', (req, res, next) => {
 
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
 const findEmailInDB = email => {
-  knex('users')
+  return knex('users')
     .select('id')
-    .where({email: email})
+    .where({email})
+    .then(([id]) => {
+      console.log(id, "FINDEMAILWORKING")
+      return id.id
+    })
+    .catch(err => { console.log(err, 'findemail error'); });
 }
+
 
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
   const tripId = id;
   console.log(emails);
+  sgMail.setApiKey(SENDGRID_API_KEY)
+
+  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err,data) {
+    if (err) {
+      return console.log(err);
+    }
+    res.status(201);
+  });
   
-  emails.forEach(email => {
-    const userId = findEmailInDB(email);
+  emails.forEach (async(email) => {
+    console.log(email, 'email being passed');
+    const userId = await findEmailInDB(email);
     console.log(userId);
-    const insertUser = insertUserIntoTrip(userId, tripId);
-    sgMail.setApiKey(SENDGRID_API_KEY)
-  const unregisteredMsg = {
-    to: email,
-    from: 'tripWe@tripwe.com',
-    subject: 'Become a member!',
-    text: `Register at <a href="/users/?tripId=${id}">`,
-    html: '<strong>TripWe Registration Page</strong>',
-  };
-  const msg = {
-    to: email,
-    from: 'tripWe@tripwe.com',
-    subject: 'You are invited!',
-    text: `View the trip at  <a href="/trips/${id}">`,
-    html: `<strong>TripWe Join Trip <a href="/trips/${id}"></strong>`,
-  };
-    if (findEmailInDB) {
+    const unregisteredMsg = {
+      to: email,
+      from: 'tripWe@tripwe.com',
+      subject: 'Become a member!',
+      text: `Register at <a href="/users/?tripId=${id}">`,
+      html: '<strong>TripWe Registration Page</strong>',
+    };
+    const msg = {
+      to: email,
+      from: 'tripWe@tripwe.com',
+      subject: 'You are invited!',
+      text: `View the trip at tripwe.com/trips/${id}`,
+      html: template,
+    };
+
+    if (findEmailInDB !== undefined) {
+      const insertUser = await insertUserIntoTrip(userId, tripId);
       sgMail.send(msg);
       res.json(msg).status(201);
     } else {
@@ -283,7 +298,7 @@ router.post('/trips/:id/group', (req, res, next) => {
     };
   });
   
-  //fs.readFile('./templates/email/invite-template', 'utf8').then(email => console.log(email));
+  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
   
 
 });

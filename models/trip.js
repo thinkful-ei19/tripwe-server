@@ -15,7 +15,7 @@ function insertUserIntoTrip(userId, newTripId){
     .into('users_trips')
     .then(() => true)
     .catch(e => { 
-      console.error('insertFlight error: ', e)
+      console.error('insertUserIntoTrips error: ', e)
       return false
     })    
 }
@@ -27,6 +27,7 @@ function deleteTripById(tripId) {
           console.error(`[deleteTripById] Error: ${err}`)
       })
 }
+
 module.exports = {
   editTrip,
   insertNewTrip,
