@@ -8,7 +8,6 @@ const util = require('util');
 const { editFlightById, deleteFlightById, insertFlight, insertFlightInTrips } = require('../models/flight');
 const inspect = data => util.inspect(data, { depth: null });
 
-
 /*==========POST NEW FLIGHT ========== */
 router.post('/trips/:id/flights', async (req, res, next) => {
   const userId = getUserId(req);
@@ -46,13 +45,14 @@ router.post('/trips/:id/flights', async (req, res, next) => {
   const success = await insertFlightInTrips(id, userId, flightId)
 
   if (success) {
-    res.status(201).json();
+    console.log('yaayay');
+    res.status(201).json(flightId);
   } else {
     res.status(500).json();
   }
 })
 /* ========== PUT/UPDATE FLIGHT ========== */
-router.put('/trips/:id/flights/:id', (req, res, next)=> {
+router.put('/trips/:id/flights/:id', (req, res, next) => {
   const flightId = req.params.id;
   const {
     incomingDepartureTime,
@@ -81,20 +81,20 @@ router.put('/trips/:id/flights/:id', (req, res, next)=> {
     outgoingflightnum: outgoingFlightNum
   }
   const success = editFlightById(flightId, updatedFlight)
-  if(success) {
+  if (success) {
     res.status(201).json();
   } else {
     res.status(500).json();
   }
 });
 /* ========= DELETE FLIGHT =========== */
-router.delete('/trips/:id/flights/:id', (req,res,next)=> {
+router.delete('/trips/:id/flights/:id', (req, res, next) => {
   const { id } = req.params;
   const flightId = id;
   console.log(flightId);
-  
+
   const success = deleteFlightById(flightId);
-  if(success) {
+  if (success) {
     res.status(204).json();
   } else {
     res.status(500).json();

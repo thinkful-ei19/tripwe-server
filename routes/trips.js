@@ -214,7 +214,7 @@ router.put('/trips/:id', (req, res, next) => {
   const success = editTrip(tripId, editedTrip);
 
   if (success) {
-      res.status(201).json(editedTrip);
+    res.status(201).json(editedTrip);
   } else {
     res.status(500).json();
   }
@@ -224,7 +224,7 @@ router.put('/trips/:id', (req, res, next) => {
 const findEmailInDB = email => {
   return knex('users')
     .select('id')
-    .where({email})
+    .where({ email })
     .then(([id]) => {
       return id.id
     })
@@ -238,14 +238,14 @@ router.post('/trips/:id/group', (req, res, next) => {
   console.log(emails);
   sgMail.setApiKey(SENDGRID_API_KEY)
 
-  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err,data) {
+  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err, data) {
     if (err) {
       return console.log(err);
     }
     res.status(201);
   });
 
-  emails.forEach (async(email) => {
+  emails.forEach(async (email) => {
     console.log(email, 'email being passed');
     const userId = await findEmailInDB(email);
     console.log(userId);
