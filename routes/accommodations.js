@@ -60,7 +60,7 @@ router.put('/trips/:tripId/accommodations/:accId', async (req, res, next) => {
         res.status(500).json();
     }
 });
-
+/* ===== PUT/UPDATE ACCOMMODATIONS ====== */
 router.put('/accommodations/:id', (req, res, next) => {
     const accommodationId = req.params.id;
     const { name, address, reference, arrival, departure, phone } = req.body;
@@ -81,7 +81,7 @@ router.put('/accommodations/:id', (req, res, next) => {
         res.status(500).json();
     }
 });
-
+/* ======== DELETE ACCOMMODATION ======== */
 router.delete('/accommodations/:id', (req, res, next) => {
     const accommodationId = req.params.id;
     console.log(accommodationId, "ID")
