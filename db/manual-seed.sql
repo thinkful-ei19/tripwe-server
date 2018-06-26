@@ -61,17 +61,17 @@ CREATE TABLE flights (
     incomingDepartureTime DATE,
     incomingArrivalTime DATE,
     incomingDepartureAirport text,
-    incomingDepartureLatitude int,
-    incomingDepartureLongitude int,
+    incomingDepartureLatitude text,
+    incomingDepartureLongitude text,
     incomingArrivalAirport text,
-    incomingArrivalLatitude int,
-    incomingArrivalLongitude int
-    incomingFlightNum int,
+    incomingArrivalLatitude text,
+    incomingArrivalLongitude text,
+    incomingFlightNum text,
     outgoingDepartureTime DATE,
     outgoingArrivalTime DATE,
     outgoingDepartureAirport text,
     outgoingArrivalAirport text,
-    outgoingFlightNum int
+    outgoingFlightNum text
 );
 CREATE TABLE plans (
     id serial PRIMARY KEY,
@@ -91,7 +91,7 @@ CREATE TABLE trip_invites (
     trip_id int REFERENCES trips,
     date DATE,
     email text NOT NULL,
-    status numeric NOT NULL DEFAULT 0 
+    status numeric NOT NULL DEFAULT 0
 );
 CREATE TABLE users_trips (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
