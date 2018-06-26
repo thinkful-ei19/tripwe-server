@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -42,22 +42,19 @@ const getTripInfoById = id => {
     .from('trips as t')
     .where({ id })
     .first()
-    .then(res => {
-      console.log('getTripsById res:', res)
-      return res;
-    })
 }
 
 const getUsersByTripId = tripId => {
 
-  return knex.select(
+  return knex
+  .select(
     // users
-    'u.id',
+    'u.id as userId',
     'u.fullname',
     'u.email',
     'u.username',
     // Flights
-    'f.id',
+    'f.id as flightId',
     'f.trip_id',
     'f.user_id',
     'f.incomingdeparturetime',
@@ -73,14 +70,10 @@ const getUsersByTripId = tripId => {
     // status
     'ut.status'
   )
-    .from('users_trips as ut')
-    .leftJoin('users as u', 'ut.user_id', 'u.id')
+    .from('users as u')
+    .leftJoin('users_trips as ut', 'ut.user_id', 'u.id')
     .leftJoin('flights as f', 'ut.flight_id', 'f.id')
     .where('ut.trip_id', tripId)
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res;
-    })
     .catch(err => {
       console.error(err)
     })
@@ -88,27 +81,7 @@ const getUsersByTripId = tripId => {
 
 // models/accommodation.js -----START-----
 // accommodations[n]users prop
-const getUsersByAccommodationId = accommodationId => {
 
-  return knex.select(
-    // users
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-
-    .from('accommodations_users as au')
-    .leftJoin('users as u', 'au.user_id', 'u.id')
-    .where({ accommodation_id: accommodationId })
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res; // array of accommodation object
-    })
-    .catch(err => {
-      console.error(err)
-    })
-}
 
 // accommodations[n]accommodation prop
 const getAccommodationsByTripId = tripId => {
@@ -159,7 +132,6 @@ const getPlansByTripId = tripId => {
 }
 
 async function getBudgetAndTransactionsByTripId(tripId) {
-  console.log('getTotalBudgetByTripId: ', getTotalBudgetByTripId && getTotalBudgetByTripId.toString())
   const total = await getTotalBudgetByTripId(tripId);
   const transactions = await getTransactionsByTripId(tripId);
   return { total, transactions };
@@ -238,9 +210,9 @@ router.put('/trips/:id', (req, res, next) => {
   const success = editTrip(tripId, editedTrip);
 
   if (success) {
-      res.status(201).json(editedTrip);
+    res.status(201).json(editedTrip);
   } else {
-      res.status(500).json();
+    res.status(500).json();
   }
 })
 
@@ -307,13 +279,16 @@ router.post('/trips/:id/group', (req, res, next) => {
   });
     //what to do with users that dont have accounts but want to show them in the group
     //play with status 
-});
 //if theres a trip id be sure its included in req
 
+  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
+
+
+});
 /*=========DELETE TRIP============ */
 router.delete('/trips/:id', (req, res, next) => {
   const tripId = req.params.id;
-  
+
   const success = deleteTripById(tripId);
 
   if (success) {
@@ -321,7 +296,7 @@ router.delete('/trips/:id', (req, res, next) => {
   } else {
     res.status(500).json();
   }
-})
+});
 
 //we should cascade and then delete and reseed
 

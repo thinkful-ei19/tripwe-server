@@ -11,8 +11,9 @@ function deletePlanById(planId) {
     return knex('plans').where({ id: planId }).del()
         .catch(err => console.error(`[deleteplanbyid] error: ${err}`))
 }
+
 function insertPlan(newPlan){
-   return knex.insert(newPlans)
+   return knex.insert(newPlan)
     .into('plans')
     .returning('id')
     .then(([id]) => id)

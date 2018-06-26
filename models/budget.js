@@ -21,7 +21,14 @@ function getTotalBudgetByTripId(tripId) {
     })
 }
 
+function deleteTransactionById(transactionId) {
+    return knex('transactions')
+        .where({id: transactionId}).del()
+        .catch(err => console.error(`[deleteTransactionById] error: ${err}`))
+}
+
 module.exports = {
   getTotalBudgetByTripId,
-  insertTransaction
+  insertTransaction,
+  deleteTransactionById
 }

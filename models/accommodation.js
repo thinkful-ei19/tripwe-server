@@ -1,7 +1,6 @@
 const { knex } = require('../db-knex');
 
 function editAccomodationById(accommodationId, updatedAccommodation) {
-  console.log(updatedAccommodation, "ACC")
     return knex('accommodations')
         .update(updatedAccommodation)
         .where({ id: accommodationId })
@@ -42,9 +41,17 @@ function insertUserIntoAccommodation(userId, accommodationId, id) {
     })
 }
 
+function response(accommodationId) {
+  return knex('accommodations')
+      .select()
+      .where({ id: accommodationId })
+}
+
+
 module.exports = {
   editAccomodationById,
   deleteAccomodationById,
   insertNewAccommodation,
-  insertUserIntoAccommodation
+  insertUserIntoAccommodation,
+  response
 }
