@@ -103,6 +103,7 @@ router.post('/users', (req, res, next) => {
         .where('users.id', userId)
         .first();
     })
+    // if email is in trip invite table insert user into trip then delete email from trip invite table
     .then (user => {
       const tripId = req.query.tripId;
       if(tripId){
