@@ -67,8 +67,10 @@ const getUsersByTripId = tripId => {
     'f.outgoingdepartureairport',
     'f.outgoingarrivalairport',
     'f.outgoingflightnum',
-    'f.latitude',
-    'f.longitude',
+    'f.incomingDepartureLatitude',
+    'f.incomingDepartureLongitude',
+    'f.incomingArrivalLatitude',
+    'f.incomingArrivalLongitude',
     // status
     'ut.status'
   )
@@ -248,7 +250,7 @@ router.post('/trips/:id/group', (req, res, next) => {
   const tripId = id;
   console.log(emails);
   sgMail.setApiKey(SENDGRID_API_KEY)
-  
+
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
     let template = data;
     emails.forEach (async(email) => {
@@ -280,7 +282,7 @@ router.post('/trips/:id/group', (req, res, next) => {
     });
   });
     //what to do with users that dont have accounts but want to show them in the group
-    //play with status 
+    //play with status
 //if theres a trip id be sure its included in req
 
   //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
