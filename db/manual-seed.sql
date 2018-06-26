@@ -83,6 +83,12 @@ CREATE TABLE transactions (
     description text,
     amount decimal
 );
+CREATE TABLE trip_invites (
+    trip_id int REFERENCES trips,
+    date DATE,
+    email text NOT NULL,
+    status numeric NOT NULL DEFAULT 0 
+);
 CREATE TABLE users_trips (
     user_id int REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
     trip_id int REFERENCES trips (id) ON UPDATE CASCADE,
