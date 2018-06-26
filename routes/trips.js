@@ -239,7 +239,17 @@ const getDestination = id => {
     })
     .catch(err => { console.log(err, 'getDestination error'); });
 }
-
+const addTripInvites = (email, id) => {
+  return knex.insert({email, trip_id: id})
+    .into('trip_invites')
+    .returning('email')
+    .then(res =>{
+      console.log(res);
+    })
+    .catch(e => { 
+      console.error('insertNewTrips error: ', e)
+    })
+}
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
@@ -250,6 +260,8 @@ router.post('/trips/:id/group', (req, res, next) => {
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
     let template = data;
     emails.forEach (async(email) => {
+      const invite = await addTripInvites(email, id)
+      console.log("added to invite", invite);
       console.log(email, 'email being passed');
       const userId = await findEmailInDB(email);
       console.log(userId);
@@ -269,7 +281,9 @@ router.post('/trips/:id/group', (req, res, next) => {
       };
       if (userId === false) {
         sgMail.send(unregisteredMsg);
-        res.json().status(201);
+        //insert email into trip ivites w/ date/trip/id
+        //return email
+        //res.json().status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
         sgMail.send(msg);
@@ -279,9 +293,9 @@ router.post('/trips/:id/group', (req, res, next) => {
   });
     //what to do with users that dont have accounts but want to show them in the group
     //play with status 
-//if theres a trip id be sure its included in req
+  //if theres a trip id be sure its included in req
 
-  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
+ 
 
 
 });
