@@ -67,10 +67,10 @@ const getUsersByTripId = tripId => {
     'f.outgoingdepartureairport',
     'f.outgoingarrivalairport',
     'f.outgoingflightnum',
-    'f.incomingDepartureLatitude',
-    'f.incomingDepartureLongitude',
-    'f.incomingArrivalLatitude',
-    'f.incomingArrivalLongitude',
+    'f.incomingdeparturelatitude',
+    'f.incomingdeparturelongitude',
+    'f.incomingarrivallatitude',
+    'f.incomingarrivallongitude',
     // status
     'ut.status'
   )
