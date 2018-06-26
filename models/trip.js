@@ -8,7 +8,10 @@ function insertNewTrip(newTrip){
   return knex.insert(newTrip)
     .into('trips')
     .returning('id')
-    .then(([id]) => id);
+    .then(([id]) => id)
+    .catch(e => { 
+      console.error('insertNewTrips error: ', e)
+    })
 }
 function insertUserIntoTrip(userId, newTripId){
   return knex.insert({ user_id: userId, trip_id: newTripId })
