@@ -61,7 +61,11 @@ CREATE TABLE flights (
     incomingDepartureTime DATE,
     incomingArrivalTime DATE,
     incomingDepartureAirport text,
+    incomingDepartureLatitude int,
+    incomingDepartureLongitude int,
     incomingArrivalAirport text,
+    incomingArrivalLatitude int,
+    incomingArrivalLongitude int
     incomingFlightNum int,
     outgoingDepartureTime DATE,
     outgoingArrivalTime DATE,
