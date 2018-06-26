@@ -67,6 +67,8 @@ const getUsersByTripId = tripId => {
     'f.outgoingdepartureairport',
     'f.outgoingarrivalairport',
     'f.outgoingflightnum',
+    'f.latitude',
+    'f.longitude',
     // status
     'ut.status'
   )

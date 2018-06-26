@@ -23,7 +23,9 @@ router.post('/trips/:id/flights', async (req, res, next) => {
     outgoingArrivalTime,
     outgoingDepartureAirport,
     outgoingArrivalAirport,
-    outgoingFlightNum
+    outgoingFlightNum,
+    latitude,
+    longitude
   } = req.body;
 
   const newFlight = {
@@ -38,7 +40,9 @@ router.post('/trips/:id/flights', async (req, res, next) => {
     outgoingarrivaltime: outgoingArrivalTime,
     outgoingdepartureairport: outgoingDepartureAirport,
     outgoingarrivalairport: outgoingArrivalAirport,
-    outgoingflightnum: outgoingFlightNum
+    outgoingflightnum: outgoingFlightNum,
+    latitude: latitude,
+    longitude: longitude
   }
 
   const flightId = await insertFlight(newFlight)
