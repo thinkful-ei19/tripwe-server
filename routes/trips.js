@@ -186,7 +186,9 @@ router.post('/trips', async (req, res, next) => {
     departure,
   }
   const newTripId = await insertNewTrip(newTrip);
+  console.log(newTripId);
   const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
+  console.log(insertUsersSuccess);
 
   if (insertUsersSuccess) {
     res.status(201).json(newTripId);
@@ -220,11 +222,24 @@ router.put('/trips/:id', (req, res, next) => {
 const findEmailInDB = email => {
   return knex('users')
     .select('id')
-    .where({ email })
-    .then(([id]) => {
-      return id.id
+    .where({email})
+    .then(res => {
+     if(res.length > 0){
+       return res[0].id;
+     } else {
+       return false;
+     }
     })
     .catch(err => { console.log(err, 'findemail error'); });
+}
+const getDestination = id => {
+  return knex.select('destination')
+    .from('trips')
+    .where({id})
+    .then(res => {
+      return res[0].destination;
+    })
+    .catch(err => { console.log(err, 'getDestination error'); });
 }
 
 router.post('/trips/:id/group', (req, res, next) => {
@@ -233,45 +248,40 @@ router.post('/trips/:id/group', (req, res, next) => {
   const tripId = id;
   console.log(emails);
   sgMail.setApiKey(SENDGRID_API_KEY)
-
-  const template = fs.readFile('./templates/email/invite-template.html', 'utf8', function (err, data) {
-    if (err) {
-      return console.log(err);
-    }
-    res.status(201);
+  
+  fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
+    let template = data;
+    emails.forEach (async(email) => {
+      console.log(email, 'email being passed');
+      const userId = await findEmailInDB(email);
+      console.log(userId);
+      const destination = await getDestination(id);
+      console.log(destination, 'this is destination');
+      const unregisteredMsg = {
+        to: email,
+        from: 'tripWe@tripwe.com',
+        subject: 'Become a member!',
+        html: template.replace(/{{tripId}}/g, id).replace(/{{destination}}/g, destination)
+      };
+      const msg = {
+        to: email,
+        from: 'tripWe@tripwe.com',
+        subject: 'You are invited!',
+        html: template.replace(/{{tripId}}/g, id).replace(/{{destination}}/g, destination)
+      };
+      if (userId === false) {
+        sgMail.send(unregisteredMsg);
+        res.json().status(201);
+      } else {
+        const insertUser = await insertUserIntoTrip(userId, tripId);
+        sgMail.send(msg);
+        res.json().status(201);
+      };
+    });
   });
-
-  emails.forEach(async (email) => {
-    console.log(email, 'email being passed');
-    const userId = await findEmailInDB(email);
-    console.log(userId);
-    const unregisteredMsg = {
-      to: email,
-      from: 'tripWe@tripwe.com',
-      subject: 'Become a member!',
-      text: `Register at <a href="/users/?tripId=${id}">`,
-      html: '<strong>TripWe Registration Page</strong>',
-    };
-    const msg = {
-      to: email,
-      from: 'tripWe@tripwe.com',
-      subject: 'You are invited!',
-      text: `View the trip at tripwe.com/trips/${id}`,
-      html: template,
-    };
-
-    if (findEmailInDB !== undefined) {
-      const insertUser = await insertUserIntoTrip(userId, tripId);
-      sgMail.send(msg);
-      res.json(msg).status(201);
-    } else {
-      sgMail.send(unregisteredMsg);
-      res.json(unregisteredMsg).status(201);
-    };
-  });
-
-  //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
-
+    //what to do with users that dont have accounts but want to show them in the group
+    //play with status 
+//if theres a trip id be sure its included in req
 
   //fs.readFile('./templates/email/invite-template', 'utf8', err => console.log(err)));
 
@@ -288,7 +298,7 @@ router.delete('/trips/:id', (req, res, next) => {
   } else {
     res.status(500).json();
   }
-})
+});
 
 //we should cascade and then delete and reseed
 

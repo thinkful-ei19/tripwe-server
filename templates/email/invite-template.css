@@ -40,7 +40,7 @@
     width: auto;
     max-width: 100%;
     clear: both;
-    display: block; }
+   }
   
   center {
     width: 100%;
@@ -753,9 +753,9 @@
     .small-text-right {
       text-align: right !important; } }
   
-  img.float-left {
+  /* img.float-left {
     float: left;
-    text-align: left; }
+    text-align: left; } */
   
   img.float-right {
     float: right;
