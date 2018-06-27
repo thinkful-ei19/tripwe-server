@@ -14,6 +14,16 @@ function insertNewTrip(newTrip){
       console.error('insertNewTrips error: ', e)
     })
 }
+function getUserEmail(userId){
+  return knex.select('email')
+    .from('users')
+    .where({id})
+    .then(res => {
+      return res[0].email;
+    })
+    .catch(err => { console.log(err, 'getUserEmail error'); });
+
+}
 function insertUserIntoTrip(userId, newTripId){
   return knex.insert({ user_id: userId, trip_id: newTripId })
     .into('users_trips')
@@ -51,11 +61,24 @@ function getUsersByAccommodationId(accommodationId) {
       console.error(err);
     });
 }
+const findInvited = email => {
+  knex('trip_invites')  
+    .where({email})
+    .then(res => {
+      return res;
+    })
+    .catch(err => {
+      console.error(`[findInvited] Error: ${err}`)
+  })
+}
+
 
 module.exports = {
   editTrip,
   getUsersByAccommodationId,
   insertNewTrip,
   insertUserIntoTrip,
-  deleteTripById
+  deleteTripById,
+  getUserEmail,
+  findInvited
 };

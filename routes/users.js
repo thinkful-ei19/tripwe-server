@@ -3,7 +3,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
-const {insertUserIntoTrip} = require('../models/trip');
+const {insertUserIntoTrip, getUserEmail, findInvited} = require('../models/trip');
+const { addTripInvites } = require('./trips')
 //const User = require('../models/user');
 
 const router = express.Router();
@@ -103,11 +104,16 @@ router.post('/users', (req, res, next) => {
         .where('users.id', userId)
         .first();
     })
+    //===========
+    // const email = getUserEmail(userId);
+    // insertUserIntoTrip(userId, tripId)
+    // const delInvite = findInvited(email);
     // if email is in trip invite table insert user into trip then delete email from trip invite table
     .then (user => {
+      
       const tripId = req.query.tripId;
       if(tripId){
-        insertUserIntoTrip(userId, tripId)
+       
         return res.location(`/trips`).status(201).json(user);
       }
       if (user) {

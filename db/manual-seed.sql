@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS users_flights;
 DROP TABLE IF EXISTS accommodations_users;
 DROP TABLE IF EXISTS trips;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS trip_invites;
 
 CREATE TABLE airports (
   id serial PRIMARY KEY,
@@ -85,8 +86,8 @@ CREATE TABLE transactions (
 );
 CREATE TABLE trip_invites (
     trip_id int REFERENCES trips,
-    date DATE,
-    email text NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    email text NOT NULL UNIQUE,
     status numeric NOT NULL DEFAULT 0 
 );
 CREATE TABLE users_trips (
