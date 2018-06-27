@@ -245,8 +245,8 @@ const addTripInvites = (email, id) => {
   return knex.insert({email, trip_id: id})
     .into('trip_invites')
     .returning('email')
-    .then(res =>{
-      console.log(res);
+    .then(([email]) =>{
+      return email;
     })
     .catch(e => {
       console.error('insertNewTrips error: ', e)
@@ -262,8 +262,7 @@ router.post('/trips/:id/group', (req, res, next) => {
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
     let template = data;
     emails.forEach (async(email) => {
-      const invite = await addTripInvites(email, id)
-      console.log("added to invite", invite);
+      
       console.log(email, 'email being passed');
       const userId = await findEmailInDB(email);
       console.log(userId);
@@ -283,9 +282,9 @@ router.post('/trips/:id/group', (req, res, next) => {
       };
       if (userId === false) {
         sgMail.send(unregisteredMsg);
-        //insert email into trip ivites w/ date/trip/id
-        //return email
-        //res.json().status(201);
+        const invite = await addTripInvites(email, id)
+        console.log("added to invite", invite);
+        res.json(invite).status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
         sgMail.send(msg);
@@ -319,5 +318,6 @@ router.delete('/trips/:id', (req, res, next) => {
 module.exports = {
   tripsRouter: router,
   getTripById,
-  insertUserIntoTrip
+  insertUserIntoTrip,
+  addTripInvites
 }
