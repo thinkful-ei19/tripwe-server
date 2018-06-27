@@ -88,7 +88,7 @@ const getArrival = id => {
     .from('trips')
     .where({id})
     .then(res => {
-      return res[0].arrival;
+      return res[0].arrival.toDateString();
     })
     .catch(err => { console.log(err, 'getArrival error'); });
 }

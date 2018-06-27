@@ -188,9 +188,9 @@ router.post('/trips', async (req, res, next) => {
     departure,
   }
   const newTripId = await insertNewTrip(newTrip);
-  console.log(newTripId);
+  //console.log(newTripId);
   const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
-  console.log(insertUsersSuccess);
+  //console.log(insertUsersSuccess);
 
   if (insertUsersSuccess) {
     res.status(201).json(newTripId);
@@ -226,20 +226,14 @@ router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
   const tripId = id;
-  console.log(emails);
   sgMail.setApiKey(SENDGRID_API_KEY)
 
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
     let template = data;
     emails.forEach (async(email) => {
-      
-      console.log(email, 'email being passed');
       const userId = await findEmailInDB(email);
-      console.log(userId);
       const destination = await getDestination(id);
-      console.log(destination, 'this is destination');
       const arrival = await getArrival(id);
-      console.log(arrival, 'this is arrival');
       const unregisteredMsg = {
         to: email,
         from: 'tripWe@tripwe.com',
@@ -259,7 +253,7 @@ router.post('/trips/:id/group', (req, res, next) => {
       if (userId === false) {
         sgMail.send(unregisteredMsg);
         const invite = await addTripInvites(email, id)
-        console.log("added to invite", invite);
+        //console.log("added to invite", invite);
         res.json(invite).status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
