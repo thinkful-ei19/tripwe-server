@@ -4,7 +4,6 @@ function editAccomodationById(accommodationId, updatedAccommodation) {
     return knex('accommodations')
         .update(updatedAccommodation)
         .where({ id: accommodationId })
-        .then(() => true)
         .catch(err => {
             console.error(`[editAccomodationById] Error: ${err}`)
         })
