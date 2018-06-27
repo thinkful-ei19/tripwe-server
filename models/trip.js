@@ -17,9 +17,9 @@ function insertNewTrip(newTrip){
 function getUserEmail(userId){
   return knex.select('email')
     .from('users')
-    .where({id})
+    .where({id: userId})
     .then(res => {
-      return res[0].email;
+      console.log('getUserEmail res: ',res[0].email);
     })
     .catch(err => { console.log(err, 'getUserEmail error'); });
 
@@ -62,14 +62,25 @@ function getUsersByAccommodationId(accommodationId) {
     });
 }
 const findInvited = email => {
-  knex('trip_invites')  
+  return knex.select('trip_id')
+    .from('trip_invites')  
     .where({email})
     .then(res => {
-      return res;
+      console.log('find invited res', res[0].trip_id);
+      return res[0].trip_id;
     })
     .catch(err => {
       console.error(`[findInvited] Error: ${err}`)
-  })
+      return false;
+    })
+}
+const delInvited = email => {
+  return knex('trip_invites')
+    .where({email})
+    .del()
+    .catch(err => {
+      console.error(`[deleteInvited] Error: ${err}`)
+    })
 }
 
 
@@ -80,5 +91,6 @@ module.exports = {
   insertUserIntoTrip,
   deleteTripById,
   getUserEmail,
-  findInvited
+  findInvited,
+  delInvited
 };

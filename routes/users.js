@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
-const {insertUserIntoTrip, getUserEmail, findInvited} = require('../models/trip');
+const {insertUserIntoTrip, getUserEmail, findInvited, delInvited} = require('../models/trip');
 const { addTripInvites } = require('./trips')
 //const User = require('../models/user');
 
@@ -105,23 +105,30 @@ router.post('/users', (req, res, next) => {
         .first();
     })
     //===========
-    // const email = getUserEmail(userId);
+     
+     
+     //return tripId
     // insertUserIntoTrip(userId, tripId)
-    // const delInvite = findInvited(email);
+    // const delInvited = await delInvited(email)
     // if email is in trip invite table insert user into trip then delete email from trip invite table
-    .then (user => {
-      
-      const tripId = req.query.tripId;
-      if(tripId){
-       
-        return res.location(`/trips`).status(201).json(user);
-      }
+    .then (async(user) => {
       if (user) {
+        //get email
+       // const foundEmail = await getUserEmail(userId);
+        console.log('email going into findInvited', email);
+        const tripId = await findInvited(email);
+        if(tripId){
+          const insertUser = await insertUserIntoTrip(userId, tripId)
+          console.log('insert happened', insertUser)
+          const deleteInvite = await delInvited(email)
+        //add to trip
+        //delete email
+        }
         res.location(`${req.originalUrl}/${userId}`).status(201).json(user);
       } else {
         next();
       }
-    })  
+    }) 
     .catch (err => {
       // console.log(err);
       if (err.code === '23505') {
