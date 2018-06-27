@@ -73,7 +73,7 @@ router.put('/accommodations/:id', (req, res, next) => {
 
     const success = editAccomodationById(accommodationId, updatedAccommodation)
     if (success) {
-        res.status(201).json(result);
+        res.status(201).json(updatedAccommodation);
     } else {
         res.status(500).json();
     }
