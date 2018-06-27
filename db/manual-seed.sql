@@ -62,13 +62,17 @@ CREATE TABLE flights (
     incomingDepartureTime DATE,
     incomingArrivalTime DATE,
     incomingDepartureAirport text,
+    incomingDepartureLatitude text,
+    incomingDepartureLongitude text,
     incomingArrivalAirport text,
-    incomingFlightNum int,
+    incomingArrivalLatitude text,
+    incomingArrivalLongitude text,
+    incomingFlightNum text,
     outgoingDepartureTime DATE,
     outgoingArrivalTime DATE,
     outgoingDepartureAirport text,
     outgoingArrivalAirport text,
-    outgoingFlightNum int
+    outgoingFlightNum text
 );
 CREATE TABLE plans (
     id serial PRIMARY KEY,
