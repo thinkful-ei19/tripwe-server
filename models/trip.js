@@ -10,7 +10,7 @@ function insertNewTrip(newTrip){
     .into('trips')
     .returning('id')
     .then(([id]) => id)
-    .catch(e => { 
+    .catch(e => {
       console.error('insertNewTrips error: ', e)
     })
 }

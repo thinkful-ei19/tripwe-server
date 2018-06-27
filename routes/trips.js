@@ -188,9 +188,7 @@ router.post('/trips', async (req, res, next) => {
     departure,
   }
   const newTripId = await insertNewTrip(newTrip);
-  console.log(newTripId);
   const insertUsersSuccess = await insertUserIntoTrip(userId, newTripId);
-  console.log(insertUsersSuccess);
 
   if (insertUsersSuccess) {
     res.status(201).json(newTripId);
