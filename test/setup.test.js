@@ -18,7 +18,7 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 before(function() {
-  return dbConnect(TEST_DATABASE_URL);
+  //return dbConnect(TEST_DATABASE_URL);
 });
 
 after(function() {
