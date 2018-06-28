@@ -116,7 +116,7 @@ const addTripInvites = (email, id) => {
 }
 const findInvited = email => {
   return knex.select('trip_id')
-    .from('trip_invites')  
+    .from('trip_invites')
     .where({email})
     .then(res => {
       console.log('find invited res', res[0].trip_id);
@@ -137,6 +137,18 @@ const delInvited = email => {
 }
 
 
+function getInvitedUsers(tripId) {
+  return knex
+  .select(
+    'ti.email'
+  )
+  .from('trip_invites as ti')
+  .where('ti.trip_id', tripId)
+  .catch(err => {
+    console.error(err)
+  })
+}
+
 module.exports = {
   editTrip,
   getUsersByAccommodationId,
@@ -150,5 +162,6 @@ module.exports = {
   getArrival,
   addTripInvites,
   findInvited,
-  delInvited
+  delInvited,
+  getInvitedUsers
 };

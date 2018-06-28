@@ -7,7 +7,19 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname } = require('../models/trip');
+const {
+  editTrip,
+  insertNewTrip,
+  insertUserIntoTrip,
+  deleteTripById,
+  getUsersByAccommodationId,
+  findEmailInDB,
+  getDestination,
+  getArrival,
+  addTripInvites,
+  getFullname,
+  getInvitedUsers
+  } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -22,10 +34,11 @@ router.get('/trips/:id', async (req, res, next) => {
 async function getTripById(tripId) {
   const trip = await getTripInfoById(tripId);
   const group = await getUsersByTripId(tripId);
+  const invites = await getInvitedUsers(tripId);
   const accommodations = await getAccommodationsByTripId(tripId);
   const plans = await getPlansByTripId(tripId);
-  const budget = await getBudgetAndTransactionsByTripId(tripId)
-  return { trip, group, accommodations, plans, budget }
+  const budget = await getBudgetAndTransactionsByTripId(tripId);
+  return { trip, group: [...group, ...invites], accommodations, plans, budget }
 }
 
 const getTripInfoById = id => {
