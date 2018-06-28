@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -224,6 +224,7 @@ router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
   const tripId = id;
+  //const userId = getUserId(req);
   sgMail.setApiKey(SENDGRID_API_KEY)
 
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
@@ -232,6 +233,7 @@ router.post('/trips/:id/group', (req, res, next) => {
       const userId = await findEmailInDB(email);
       const destination = await getDestination(id);
       const arrival = await getArrival(id);
+      const fullname = await getFullname(userId);
       const unregisteredMsg = {
         to: email,
         from: 'tripWe@tripwe.com',
@@ -239,6 +241,7 @@ router.post('/trips/:id/group', (req, res, next) => {
         html: template.replace(/{{tripId}}/g, id)
                       .replace(/{{destination}}/g, destination)
                       .replace(/{{arrival}}/g, arrival)
+                      .replace(/{{fullname}}/g, fullname)
       };
       const msg = {
         to: email,
@@ -247,6 +250,7 @@ router.post('/trips/:id/group', (req, res, next) => {
         html: template.replace(/{{tripId}}/g, id)
                       .replace(/{{destination}}/g, destination)
                       .replace(/{{arrival}}/g, arrival)
+                      .replace(/{{fullname}}/g, fullname)
       };
       if (userId === false) {
         sgMail.send(unregisteredMsg);
