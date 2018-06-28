@@ -24,6 +24,17 @@ function getUserEmail(userId){
     .catch(err => { console.log(err, 'getUserEmail error'); });
 
 }
+function getUsername(userId){
+  return knex.select('username')
+    .from('users')
+    .where({id: userId})
+    .then(res => {
+      return res[0].username;
+    })
+    .catch(err => {
+      console.log('getUsername error')
+    });
+}
 function insertUserIntoTrip(userId, newTripId){
   return knex.insert({ user_id: userId, trip_id: newTripId })
     .into('users_trips')
@@ -163,5 +174,6 @@ module.exports = {
   addTripInvites,
   findInvited,
   delInvited,
-  getInvitedUsers
+  getInvitedUsers,
+  getUsername
 };

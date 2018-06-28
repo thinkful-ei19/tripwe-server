@@ -7,6 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
+<<<<<<< HEAD
 const {
   editTrip,
   insertNewTrip,
@@ -20,6 +21,9 @@ const {
   getFullname,
   getInvitedUsers
   } = require('../models/trip');
+=======
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname, getUsername } = require('../models/trip');
+>>>>>>> fa8231eba248f47198f4d53de6651f969de5f880
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -268,12 +272,13 @@ router.post('/trips/:id/group', (req, res, next) => {
       if (userId === false) {
         sgMail.send(unregisteredMsg);
         const invite = await addTripInvites(email, id)
-        //console.log("added to invite", invite);
+        //this res.json return email of unregistered user
         res.json(invite).status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
+        const addedUser = await getUsername(userId);
         sgMail.send(msg);
-        res.json().status(201);
+        res.json(addedUser).status(201);
       };
     });
   });
