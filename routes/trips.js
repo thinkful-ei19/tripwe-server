@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname, getUserEmail } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname, getUsername } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -259,7 +259,7 @@ router.post('/trips/:id/group', (req, res, next) => {
         res.json(invite).status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
-        const addedUser = await getUserEmail(userId);
+        const addedUser = await getUsername(userId);
         sgMail.send(msg);
         res.json(addedUser).status(201);
       };
