@@ -83,6 +83,16 @@ const getDestination = id => {
     })
     .catch(err => { console.log(err, 'getDestination error'); });
 }
+const getFullname = userId => {
+  return knex.select('fullname')
+    .from('users')
+    .where({id: userId})
+    .then(res => {
+      return res[0].fullname;
+    })
+    .catch(err => { console.log(err, 'getFullname error'); });
+
+}
 const getArrival = id => {
   return knex.select('arrival')
     .from('trips')
@@ -92,6 +102,7 @@ const getArrival = id => {
     })
     .catch(err => { console.log(err, 'getArrival error'); });
 }
+
 const addTripInvites = (email, id) => {
   return knex.insert({email, trip_id: id})
     .into('trip_invites')
@@ -135,6 +146,7 @@ module.exports = {
   getUserEmail,
   findEmailInDB,
   getDestination,
+  getFullname,
   getArrival,
   addTripInvites,
   findInvited,
