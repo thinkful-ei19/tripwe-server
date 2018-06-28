@@ -6,8 +6,23 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
-const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites, getFullname, getUsername } = require('../models/trip');
+const { getPlansByTripId } = require('../models/plans')
+const { getBudgetAndTransactionsByTripId } = require('../models/budget')
+const { getAccommodationsByTripId } = require('../models/accommodation')
+const {
+  editTrip,
+  insertNewTrip,
+  insertUserIntoTrip,
+  deleteTripById,
+  findEmailInDB,
+  getDestination,
+  getArrival,
+  addTripInvites,
+  getFullname,
+  getInvitedUsers,
+  getUsersByTripId,
+  getTripInfoById
+  } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -22,158 +37,12 @@ router.get('/trips/:id', async (req, res, next) => {
 async function getTripById(tripId) {
   const trip = await getTripInfoById(tripId);
   const group = await getUsersByTripId(tripId);
+  const invites = await getInvitedUsers(tripId);
   const accommodations = await getAccommodationsByTripId(tripId);
   const plans = await getPlansByTripId(tripId);
-  const budget = await getBudgetAndTransactionsByTripId(tripId)
-  return { trip, group, accommodations, plans, budget }
+  const budget = await getBudgetAndTransactionsByTripId(tripId);
+  return { trip, group: [...group, ...invites], accommodations, plans, budget }
 }
-
-const getTripInfoById = id => {
-
-  return knex.select(
-    't.id',
-    't.user_id',
-    't.name',
-    't.destination',
-    't.description',
-    't.arrival',
-    't.departure'
-  )
-    .from('trips as t')
-    .where({ id })
-    .first()
-}
-
-const getUsersByTripId = tripId => {
-
-  return knex
-  .select(
-    // users
-    'u.id as userId',
-    'u.fullname',
-    'u.email',
-    'u.username',
-    // Flights
-    'f.id as flightId',
-    'f.trip_id',
-    'f.user_id',
-    'f.incomingdeparturetime',
-    'f.incomingarrivaltime',
-    'f.incomingdepartureairport',
-    'f.incomingarrivalairport',
-    'f.incomingflightnum',
-    'f.outgoingdeparturetime',
-    'f.outgoingarrivaltime',
-    'f.outgoingdepartureairport',
-    'f.outgoingarrivalairport',
-    'f.outgoingflightnum',
-    'f.incomingdeparturelatitude',
-    'f.incomingdeparturelongitude',
-    'f.incomingarrivallatitude',
-    'f.incomingarrivallongitude',
-    // status
-    'ut.status'
-  )
-    .from('users as u')
-    .leftJoin('users_trips as ut', 'ut.user_id', 'u.id')
-    .leftJoin('flights as f', 'ut.flight_id', 'f.id')
-    .where('ut.trip_id', tripId)
-    .catch(err => {
-      console.error(err)
-    })
-}
-
-// models/accommodation.js -----START-----
-// accommodations[n]users prop
-
-
-// accommodations[n]accommodation prop
-const getAccommodationsByTripId = tripId => {
-
-  return knex.select(
-    // accommodations
-    'a.id',
-    'a.trip_id',
-    'a.name',
-    'a.address',
-    'a.reference',
-    'a.arrival',
-    'a.departure',
-    'a.phone'
-  )
-    .from('accommodations as a')
-    .where({ trip_id: tripId })
-    .then(accommodations => {
-      // console.log('getaccommodationsByTripId res: ', accommodations)
-
-      const promises = accommodations.map(async accom => {
-        return {
-          ...accom,
-          users: await getUsersByAccommodationId(accom.id)
-        }
-      })
-
-      return Promise.all(promises);
-    })
-}
-// models/accommodation.js ------END------
-
-
-const getPlansByTripId = tripId => {
-
-  return knex.select(
-    'p.id',
-    'p.description',
-    'p.date',
-    'p.link'
-  )
-    .from('plans as p')
-    .where({ trip_id: tripId })
-    .then(res => {
-      // console.log('getPlansByTripId res: ', res)
-      return res;
-    })
-}
-
-async function getBudgetAndTransactionsByTripId(tripId) {
-  const total = await getTotalBudgetByTripId(tripId);
-  const transactions = await getTransactionsByTripId(tripId);
-  return { total, transactions };
-}
-
-const getBudgetByTripId = (tripId) => {
-  return knex
-    .select(
-      'b.trip_id as tripId',
-      'b.available'
-    )
-    .from('budgets as b')
-    .where({ trip_id: tripId })
-    .first()
-    .catch(err => {
-      console.error(`[getBudgetByTripId] Error: ${err}`)
-      return null
-    })
-}
-
-const getTransactionsByTripId = (tripId) => {
-  return knex
-    .select(
-      't.id',
-      't.trip_id as tripId',
-      't.description',
-      't.amount',
-  )
-    .from('transactions as t')
-    .where({ trip_id: tripId })
-    .orderBy('id', 'desc')
-    .catch(err => {
-      console.error(`[getTransactionsByTripId] Error: ${err}`)
-      return null
-    })
-}
-
-/*========POST TRIP========== */
 
 router.post('/trips', async (req, res, next) => {
   const userId = getUserId(req);

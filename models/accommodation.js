@@ -46,11 +46,62 @@ function response(accommodationId) {
       .where({ id: accommodationId })
 }
 
+function getAccommodationsByTripId(tripId) {
+
+  return knex.select(
+    // accommodations
+    'a.id',
+    'a.trip_id',
+    'a.name',
+    'a.address',
+    'a.reference',
+    'a.arrival',
+    'a.departure',
+    'a.phone'
+  )
+    .from('accommodations as a')
+    .where({ trip_id: tripId })
+    .then(accommodations => {
+      // console.log('getaccommodationsByTripId res: ', accommodations)
+
+      const promises = accommodations.map(async accom => {
+        return {
+          ...accom,
+          users: await getUsersByAccommodationId(accom.id)
+        }
+      })
+
+      return Promise.all(promises);
+    })
+}
+
+function getUsersByAccommodationId(accommodationId) {
+
+  return knex.select(
+    'u.id',
+    'u.fullname',
+    'u.email',
+    'u.username'
+  )
+
+    .from('accommodations_users as au')
+    .leftJoin('users as u', 'au.user_id', 'u.id')
+    .where({ accommodation_id: accommodationId })
+    .then(res => {
+      // console.log('getGroupByTripId res: ', res)
+      return res; // array of accommodation object
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
 
 module.exports = {
   editAccomodationById,
   deleteAccomodationById,
   insertNewAccommodation,
   insertUserIntoAccommodation,
-  response
+  response,
+  getAccommodationsByTripId,
+  getUsersByAccommodationId
 }
