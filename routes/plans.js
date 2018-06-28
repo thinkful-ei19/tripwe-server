@@ -9,21 +9,21 @@ const { editPlanById, deletePlanById, insertPlan } = require('../models/plans');
 /* =====POST TO PLANS====== */
 
 router.post('/trips/:id/plans', (req, res, next) => {
-  const { id } = req.params;
-  const userId = getUserId(req);
-  const { date, description, link } = req.body;
-  const newPlan = {
-    trip_id: id,
-    date,
-    description,
-    link
-  };
-  const success = insertPlan(newPlan);
-  if(success){
-      res.status(201).json();
-  }else {
-      res.status(500).json();
-  }
+    const { id } = req.params;
+    const userId = getUserId(req);
+    const { date, description, link } = req.body;
+    const newPlan = {
+        trip_id: id,
+        date,
+        description,
+        link
+    };
+    const success = insertPlan(newPlan);
+    if (success) {
+        res.status(201).json();
+    } else {
+        res.status(500).json();
+    }
 });
 
 /* ==== PUT/UPDATE PLANS BY ID ==== */
@@ -32,15 +32,15 @@ router.put('/plans/:id', (req, res, next) => {
     const { date, description, link } = req.body;
 
     const updatedPlan = {
-      date,
-      description,
-      link
+        date,
+        description,
+        link
     };
 
-    const success = editPlanById(planId, updatedPlan)
+    const success = editPlanById(planId, updatedPlan);
 
     if (success) {
-        res.status(201).json();
+        res.status(201).json({ planId, updatedPlan });
     } else {
         res.status(500).json();
     }
@@ -56,5 +56,5 @@ router.delete('/plans/:id', (req, res, next) => {
     } else {
         res.status(500).json();
     }
-})
+});
 module.exports = router;
