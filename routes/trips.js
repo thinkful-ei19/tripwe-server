@@ -7,7 +7,7 @@ const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const inspect = data => util.inspect(data, { depth: null });
 const { getTotalBudgetByTripId } = require('../models/budget')
-const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId } = require('../models/trip');
+const { editTrip, insertNewTrip, insertUserIntoTrip, deleteTripById, getUsersByAccommodationId, findEmailInDB, getDestination, getArrival, addTripInvites } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
 const fs = require('fs');
@@ -219,71 +219,39 @@ router.put('/trips/:id', (req, res, next) => {
 })
 
 /* ========POST / INVITING USERS WITH SENDGRID ========= */
-const findEmailInDB = email => {
-  return knex('users')
-    .select('id')
-    .where({email})
-    .then(res => {
-     if(res.length > 0){
-       return res[0].id;
-     } else {
-       return false;
-     }
-    })
-    .catch(err => { console.log(err, 'findemail error'); });
-}
-const getDestination = id => {
-  return knex.select('destination')
-    .from('trips')
-    .where({id})
-    .then(res => {
-      return res[0].destination;
-    })
-    .catch(err => { console.log(err, 'getDestination error'); });
-}
-const addTripInvites = (email, id) => {
-  return knex.insert({email, trip_id: id})
-    .into('trip_invites')
-    .returning('email')
-    .then(([email]) =>{
-      return email;
-    })
-    .catch(e => {
-      console.error('insertNewTrips error: ', e)
-    })
-}
+
 router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
   const tripId = id;
-  console.log(emails);
   sgMail.setApiKey(SENDGRID_API_KEY)
 
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
     let template = data;
     emails.forEach (async(email) => {
-      
-      console.log(email, 'email being passed');
       const userId = await findEmailInDB(email);
-      console.log(userId);
       const destination = await getDestination(id);
-      console.log(destination, 'this is destination');
+      const arrival = await getArrival(id);
       const unregisteredMsg = {
         to: email,
         from: 'tripWe@tripwe.com',
         subject: 'Become a member!',
-        html: template.replace(/{{tripId}}/g, id).replace(/{{destination}}/g, destination)
+        html: template.replace(/{{tripId}}/g, id)
+                      .replace(/{{destination}}/g, destination)
+                      .replace(/{{arrival}}/g, arrival)
       };
       const msg = {
         to: email,
         from: 'tripWe@tripwe.com',
         subject: 'You are invited!',
-        html: template.replace(/{{tripId}}/g, id).replace(/{{destination}}/g, destination)
+        html: template.replace(/{{tripId}}/g, id)
+                      .replace(/{{destination}}/g, destination)
+                      .replace(/{{arrival}}/g, arrival)
       };
       if (userId === false) {
         sgMail.send(unregisteredMsg);
         const invite = await addTripInvites(email, id)
-        console.log("added to invite", invite);
+        //console.log("added to invite", invite);
         res.json(invite).status(201);
       } else {
         const insertUser = await insertUserIntoTrip(userId, tripId);
@@ -292,13 +260,6 @@ router.post('/trips/:id/group', (req, res, next) => {
       };
     });
   });
-    //what to do with users that dont have accounts but want to show them in the group
-    //play with status
-  //if theres a trip id be sure its included in req
-
-
-
-
 });
 /*=========DELETE TRIP============ */
 router.delete('/trips/:id', (req, res, next) => {

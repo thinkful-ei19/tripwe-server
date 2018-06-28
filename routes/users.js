@@ -104,25 +104,14 @@ router.post('/users', (req, res, next) => {
         .where('users.id', userId)
         .first();
     })
-    //===========
-     
-     
-     //return tripId
-    // insertUserIntoTrip(userId, tripId)
-    // const delInvited = await delInvited(email)
-    // if email is in trip invite table insert user into trip then delete email from trip invite table
     .then (async(user) => {
       if (user) {
-        //get email
-       // const foundEmail = await getUserEmail(userId);
         console.log('email going into findInvited', email);
         const tripId = await findInvited(email);
         if(tripId){
           const insertUser = await insertUserIntoTrip(userId, tripId)
           console.log('insert happened', insertUser)
           const deleteInvite = await delInvited(email)
-        //add to trip
-        //delete email
         }
         res.location(`${req.originalUrl}/${userId}`).status(201).json(user);
       } else {

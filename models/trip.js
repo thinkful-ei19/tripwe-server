@@ -61,6 +61,48 @@ function getUsersByAccommodationId(accommodationId) {
       console.error(err);
     });
 }
+const findEmailInDB = email => {
+  return knex('users')
+    .select('id')
+    .where({email})
+    .then(res => {
+     if(res.length > 0){
+       return res[0].id;
+     } else {
+       return false;
+     }
+    })
+    .catch(err => { console.log(err, 'findemail error'); });
+}
+const getDestination = id => {
+  return knex.select('destination')
+    .from('trips')
+    .where({id})
+    .then(res => {
+      return res[0].destination;
+    })
+    .catch(err => { console.log(err, 'getDestination error'); });
+}
+const getArrival = id => {
+  return knex.select('arrival')
+    .from('trips')
+    .where({id})
+    .then(res => {
+      return res[0].arrival.toDateString();
+    })
+    .catch(err => { console.log(err, 'getArrival error'); });
+}
+const addTripInvites = (email, id) => {
+  return knex.insert({email, trip_id: id})
+    .into('trip_invites')
+    .returning('email')
+    .then(([email]) =>{
+      return email;
+    })
+    .catch(e => {
+      console.error('insertNewTrips error: ', e)
+    })
+}
 const findInvited = email => {
   return knex.select('trip_id')
     .from('trip_invites')  
@@ -91,6 +133,10 @@ module.exports = {
   insertUserIntoTrip,
   deleteTripById,
   getUserEmail,
+  findEmailInDB,
+  getDestination,
+  getArrival,
+  addTripInvites,
   findInvited,
   delInvited
 };
