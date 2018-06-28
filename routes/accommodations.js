@@ -10,9 +10,9 @@ const {
     deleteAccomodationById,
     insertNewAccommodation,
     insertUserIntoAccommodation,
-    response
+    response,
+    getUsersByAccommodationId
 } = require('../models/accommodation');
-const { getUsersByAccommodationId } = require('../models/trip');
 
 router.post('/trips/:id/accommodations', async (req, res, next) => {
     const userId = getUserId(req);

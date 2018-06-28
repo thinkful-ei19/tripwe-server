@@ -52,26 +52,7 @@ function deleteTripById(tripId) {
           console.error(`[deleteTripById] Error: ${err}`)
       })
 }
-function getUsersByAccommodationId(accommodationId) {
 
-  return knex.select(
-    'u.id',
-    'u.fullname',
-    'u.email',
-    'u.username'
-  )
-
-    .from('accommodations_users as au')
-    .leftJoin('users as u', 'au.user_id', 'u.id')
-    .where({ accommodation_id: accommodationId })
-    .then(res => {
-      // console.log('getGroupByTripId res: ', res)
-      return res; // array of accommodation object
-    })
-    .catch(err => {
-      console.error(err);
-    });
-}
 const findEmailInDB = email => {
   return knex('users')
     .select('id')
@@ -160,9 +141,63 @@ function getInvitedUsers(tripId) {
   })
 }
 
+function getUsersByTripId(tripId) {
+
+  return knex
+  .select(
+    // users
+    'u.id as userId',
+    'u.fullname',
+    'u.email',
+    'u.username',
+    // Flights
+    'f.id as flightId',
+    'f.trip_id',
+    'f.user_id',
+    'f.incomingdeparturetime',
+    'f.incomingarrivaltime',
+    'f.incomingdepartureairport',
+    'f.incomingarrivalairport',
+    'f.incomingflightnum',
+    'f.outgoingdeparturetime',
+    'f.outgoingarrivaltime',
+    'f.outgoingdepartureairport',
+    'f.outgoingarrivalairport',
+    'f.outgoingflightnum',
+    'f.incomingdeparturelatitude',
+    'f.incomingdeparturelongitude',
+    'f.incomingarrivallatitude',
+    'f.incomingarrivallongitude',
+    // status
+    'ut.status'
+  )
+    .from('users as u')
+    .leftJoin('users_trips as ut', 'ut.user_id', 'u.id')
+    .leftJoin('flights as f', 'ut.flight_id', 'f.id')
+    .where('ut.trip_id', tripId)
+    .catch(err => {
+      console.error(err)
+    })
+}
+
+function getTripInfoById(tripId) {
+
+  return knex.select(
+    't.id',
+    't.user_id',
+    't.name',
+    't.destination',
+    't.description',
+    't.arrival',
+    't.departure'
+  )
+    .from('trips as t')
+    .where({ id: tripId })
+    .first()
+}
+
 module.exports = {
   editTrip,
-  getUsersByAccommodationId,
   insertNewTrip,
   insertUserIntoTrip,
   deleteTripById,
@@ -175,5 +210,7 @@ module.exports = {
   findInvited,
   delInvited,
   getInvitedUsers,
-  getUsername
+  getUsername,
+  getUsersByTripId,
+  getTripInfoById
 };

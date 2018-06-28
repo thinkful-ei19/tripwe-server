@@ -21,8 +21,25 @@ function insertPlan(newPlan){
       console.error('insertPlan error: ', e)
     })
 }
+
+function getPlansByTripId(tripId) {
+
+  return knex.select(
+    'p.id',
+    'p.description',
+    'p.date',
+    'p.link'
+  )
+    .from('plans as p')
+    .where({ trip_id: tripId })
+    .then(res => {
+      // console.log('getPlansByTripId res: ', res)
+      return res;
+    })
+}
 module.exports = {
   editPlanById,
   deletePlanById,
-  insertPlan
+  insertPlan,
+  getPlansByTripId
 }
