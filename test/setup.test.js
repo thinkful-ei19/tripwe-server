@@ -18,7 +18,7 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 before(function() {
-  return dbConnect(TEST_DATABASE_URL);
+  //return dbConnect(TEST_DATABASE_URL);
 });
 
 after(function() {
@@ -29,4 +29,5 @@ describe('Mocha and Chai', function() {
   it('should be properly setup', function() {
     expect(true).to.be.true;
   });
+  
 });
