@@ -19,6 +19,7 @@ const {
   getArrival,
   addTripInvites,
   getFullname,
+  getUsername,
   getInvitedUsers,
   getUsersByTripId,
   getTripInfoById
