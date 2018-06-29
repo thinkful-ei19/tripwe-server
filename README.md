@@ -7,9 +7,17 @@ Check out a live version of TripWe [here](https://tripwe.herokuapp.com/dashboard
 Landing Page
 <img src="/screenshots/landingpage.png" alt="landingpage" >
 Login Page 
-<img src="/screenshots/loginpage.png" alt="landingpage" >
+<img src="/screenshots/loginpage.png" alt="loginpage" >
 Registration Page
-<img src="/screenshots/registrationpage.png" alt="landingpage" >
+<img src="/screenshots/registrationpage.png" alt="registrationpage" >
+Create Trip
+<img src="/screenshots/createtrip.png" alt="createtrip" >
+Build Group
+<img src="/screenshots/buildgroup.png" alt="buildgroup" >
+Accommodations
+<img src="/screenshots/accommodations.png" alt="accommodations" >
+Budget
+<img src="/screenshots/budget.png" alt="budget" >
 ##Technologies used on Server Side
-Node and Express. 
+Node and Express. With AWS RDS Postgres instance. Sendgrid api for transactional email.
 
