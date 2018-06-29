@@ -132,6 +132,7 @@ router.get('/users/trips', (req, res, next) => {
 
   const userId = getUserId(req);
 
+  
   knex
     .select('users.trips')
     //selecting from the users trips...
