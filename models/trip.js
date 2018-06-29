@@ -75,10 +75,10 @@ const getDestination = id => {
     })
     .catch(err => { console.log(err, 'getDestination error'); });
 }
-const getFullname = userId => {
+const getFullname = mainUserId => {
   return knex.select('fullname')
     .from('users')
-    .where({id: userId})
+    .where({id: mainUserId})
     .then(res => {
       return res[0].fullname;
     })

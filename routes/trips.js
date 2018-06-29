@@ -21,7 +21,8 @@ const {
   getFullname,
   getInvitedUsers,
   getUsersByTripId,
-  getTripInfoById
+  getTripInfoById,
+  getUsername
   } = require('../models/trip');
 const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config');
@@ -93,7 +94,7 @@ router.post('/trips/:id/group', (req, res, next) => {
   const { id } = req.params;
   const { emails } = req.body;
   const tripId = id;
-  //const userId = getUserId(req);
+  const mainUserId = getUserId(req);
   sgMail.setApiKey(SENDGRID_API_KEY)
 
   fs.readFile('./templates/email/invite-template-compiled.html', 'utf8', function (err,data) {
@@ -102,7 +103,7 @@ router.post('/trips/:id/group', (req, res, next) => {
       const userId = await findEmailInDB(email);
       const destination = await getDestination(id);
       const arrival = await getArrival(id);
-      const fullname = await getFullname(userId);
+      const fullname = await getFullname(mainUserId);
       const unregisteredMsg = {
         to: email,
         from: 'tripWe@tripwe.com',
