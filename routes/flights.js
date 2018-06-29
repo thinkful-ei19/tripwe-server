@@ -6,6 +6,7 @@ const { knex } = require('../db-knex');
 const { getUserId } = require('../utils/getUserId');
 const util = require('util');
 const { editFlightById, deleteFlightById, insertFlight, insertFlightInTrips } = require('../models/flight');
+const { getUsersByTripId  } = require('../models/trip');
 const inspect = data => util.inspect(data, { depth: null });
 
 /*==========POST NEW FLIGHT ========== */
@@ -51,10 +52,10 @@ router.post('/trips/:id/flights', async (req, res, next) => {
 
   const flightId = await insertFlight(newFlight)
   const success = await insertFlightInTrips(id, userId, flightId)
+  const group = await getUsersByTripId(id);
 
   if (success) {
-    console.log('yaayay');
-    res.status(201).json(flightId);
+    res.status(201).json(group);
   } else {
     res.status(500).json();
   }
