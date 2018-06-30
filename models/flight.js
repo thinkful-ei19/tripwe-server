@@ -32,6 +32,7 @@ function insertFlightInTrips(tripId, userId, flightId){
       UPDATE USERS_TRIPS
       SET FLIGHT_ID = ${flightId}
       WHERE TRIP_ID = ${tripId}
+      AND USER_ID = ${userId}
     `)
     .then(() => true)
     .catch(e => {
